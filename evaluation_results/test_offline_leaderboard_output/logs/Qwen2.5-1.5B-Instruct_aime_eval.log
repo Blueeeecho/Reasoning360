@@ -1,0 +1,32 @@
+Starting evaluation for aime at Mon Nov  3 14:07:26 CST 2025
+  0%|          | 0/30 [00:00<?, ?it/s] 17%|█▋        | 5/30 [00:00<00:00, 48.08it/s] 40%|████      | 12/30 [00:00<00:00, 57.73it/s][2025-11-03 14:07:29,627][pylatexenc.latexwalker][INFO] - Ignoring parse error (tolerant parsing mode): End of input while parsing arguments of macro "frac" @(34,14)
+Open LaTeX blocks:
+          @(34,14)  arguments of macro "frac"
+
+[2025-11-03 14:07:29,647][pylatexenc.latex2text][WARNING] - WARNING: Error in configuration: macro '\frac' failed its substitution!
+[2025-11-03 14:07:29,688][pylatexenc.latexwalker][INFO] - Ignoring parse error (tolerant parsing mode): End of input while parsing arguments of macro "frac" @(24,6409)
+Open LaTeX blocks:
+        @(24,6409)  arguments of macro "frac"
+
+[2025-11-03 14:07:29,690][pylatexenc.latex2text][WARNING] - WARNING: Error in configuration: macro '\frac' failed its substitution!
+ 60%|██████    | 18/30 [00:00<00:00, 29.85it/s][2025-11-03 14:07:29,983][pylatexenc.latexwalker][INFO] - Ignoring parse error (tolerant parsing mode): End of input while parsing arguments of macro "frac" @(35,16)
+Open LaTeX blocks:
+          @(35,16)  arguments of macro "frac"
+
+[2025-11-03 14:07:30,058][pylatexenc.latex2text][WARNING] - WARNING: Error in configuration: macro '\frac' failed its substitution!
+[2025-11-03 14:07:30,186][pylatexenc.latexwalker][INFO] - Ignoring parse error (tolerant parsing mode): End of input while parsing arguments of macro "not" @(77,65)
+Open LaTeX blocks:
+          @(77,65)  arguments of macro "not"
+
+[2025-11-03 14:07:30,210][pylatexenc.latexwalker][INFO] - Ignoring parse error (tolerant parsing mode): End of input while parsing arguments of macro "not" @(91,47)
+Open LaTeX blocks:
+          @(91,47)  arguments of macro "not"
+
+ 73%|███████▎  | 22/30 [00:00<00:00, 17.98it/s][2025-11-03 14:07:30,376][pylatexenc.latexwalker][INFO] - Ignoring parse error (tolerant parsing mode): End of input while parsing arguments of macro "frac" @(162,97)
+Open LaTeX blocks:
+         @(162,97)  arguments of macro "frac"
+
+[2025-11-03 14:07:30,379][pylatexenc.latex2text][WARNING] - WARNING: Error in configuration: macro '\frac' failed its substitution!
+ 87%|████████▋ | 26/30 [00:01<00:00, 18.11it/s]100%|██████████| 30/30 [00:01<00:00, 24.18it/s]
+{'test_score/math__aime_repeated_8x/score': 0.017708333333333333, 'test_score/math__aime_repeated_8x/acc': 0.017708333333333333}
+Completed evaluation for aime at Mon Nov  3 14:07:31 CST 2025

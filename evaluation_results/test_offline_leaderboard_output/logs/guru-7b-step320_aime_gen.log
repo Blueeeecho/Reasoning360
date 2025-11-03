@@ -1,0 +1,384 @@
+Processing aime: /root/autodl-tmp/data/offline_eval/math__aime_repeated_8x_240.parquet -> ./evaluation_results/test_offline_leaderboard_output//guru-7b-step320/math__aime_repeated_8x_240.parquet
+Starting generation for aime at Sun Nov  2 23:19:44 CST 2025
+Traceback (most recent call last):
+  File "<frozen runpy>", line 189, in _run_module_as_main
+  File "<frozen runpy>", line 112, in _get_module_details
+  File "/root/autodl-tmp/Reasoning360/verl/__init__.py", line 23, in <module>
+    from .protocol import DataProto
+  File "/root/autodl-tmp/Reasoning360/verl/protocol.py", line 28, in <module>
+    import pandas as pd
+ModuleNotFoundError: No module named 'pandas'
+Processing aime: /root/autodl-tmp/data/offline_eval/math__aime_repeated_8x_240.parquet -> ./evaluation_results/test_offline_leaderboard_output//guru-7b-step320/math__aime_repeated_8x_240.parquet
+Starting generation for aime at Sun Nov  2 23:20:24 CST 2025
+Traceback (most recent call last):
+  File "<frozen runpy>", line 189, in _run_module_as_main
+  File "<frozen runpy>", line 112, in _get_module_details
+  File "/root/autodl-tmp/Reasoning360/verl/__init__.py", line 23, in <module>
+    from .protocol import DataProto
+  File "/root/autodl-tmp/Reasoning360/verl/protocol.py", line 29, in <module>
+    import ray
+ModuleNotFoundError: No module named 'ray'
+Processing aime: /root/autodl-tmp/data/offline_eval/math__aime_repeated_8x_240.parquet -> ./evaluation_results/test_offline_leaderboard_output//guru-7b-step320/math__aime_repeated_8x_240.parquet
+Starting generation for aime at Sun Nov  2 23:20:47 CST 2025
+Traceback (most recent call last):
+  File "<frozen runpy>", line 189, in _run_module_as_main
+  File "<frozen runpy>", line 112, in _get_module_details
+  File "/root/autodl-tmp/Reasoning360/verl/__init__.py", line 23, in <module>
+    from .protocol import DataProto
+  File "/root/autodl-tmp/Reasoning360/verl/protocol.py", line 30, in <module>
+    import tensordict
+ModuleNotFoundError: No module named 'tensordict'
+Processing aime: /root/autodl-tmp/data/offline_eval/math__aime_repeated_8x_240.parquet -> ./evaluation_results/test_offline_leaderboard_output//guru-7b-step320/math__aime_repeated_8x_240.parquet
+Starting generation for aime at Sun Nov  2 23:21:05 CST 2025
+Traceback (most recent call last):
+  File "<frozen runpy>", line 189, in _run_module_as_main
+  File "<frozen runpy>", line 112, in _get_module_details
+  File "/root/autodl-tmp/Reasoning360/verl/__init__.py", line 23, in <module>
+    from .protocol import DataProto
+  File "/root/autodl-tmp/Reasoning360/verl/protocol.py", line 37, in <module>
+    from verl.utils.device import get_device_id, get_torch_device
+  File "/root/autodl-tmp/Reasoning360/verl/utils/__init__.py", line 15, in <module>
+    from . import config, tokenizer
+  File "/root/autodl-tmp/Reasoning360/verl/utils/config.py", line 18, in <module>
+    from omegaconf import DictConfig, ListConfig, OmegaConf
+ModuleNotFoundError: No module named 'omegaconf'
+Processing aime: /root/autodl-tmp/data/offline_eval/math__aime_repeated_8x_240.parquet -> ./evaluation_results/test_offline_leaderboard_output//guru-7b-step320/math__aime_repeated_8x_240.parquet
+Starting generation for aime at Sun Nov  2 23:21:25 CST 2025
+Traceback (most recent call last):
+  File "<frozen runpy>", line 189, in _run_module_as_main
+  File "<frozen runpy>", line 112, in _get_module_details
+  File "/root/autodl-tmp/Reasoning360/verl/__init__.py", line 23, in <module>
+    from .protocol import DataProto
+  File "/root/autodl-tmp/Reasoning360/verl/protocol.py", line 39, in <module>
+    from verl.utils.torch_functional import allgather_dict_tensors
+  File "/root/autodl-tmp/Reasoning360/verl/utils/torch_functional.py", line 29, in <module>
+    from transformers import PreTrainedTokenizer
+ModuleNotFoundError: No module named 'transformers'
+Processing aime: /root/autodl-tmp/data/offline_eval/math__aime_repeated_8x_240.parquet -> ./evaluation_results/test_offline_leaderboard_output//guru-7b-step320/math__aime_repeated_8x_240.parquet
+Starting generation for aime at Sun Nov  2 23:22:44 CST 2025
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/root/autodl-tmp/Reasoning360/verl/trainer/main_generation.py", line 21, in <module>
+    import hydra
+ModuleNotFoundError: No module named 'hydra'
+Processing aime: /root/autodl-tmp/data/offline_eval/math__aime_repeated_8x_240.parquet -> ./evaluation_results/test_offline_leaderboard_output//guru-7b-step320/math__aime_repeated_8x_240.parquet
+Starting generation for aime at Sun Nov  2 23:23:04 CST 2025
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/root/autodl-tmp/Reasoning360/verl/trainer/main_generation.py", line 21, in <module>
+    import hydra
+ModuleNotFoundError: No module named 'hydra'
+Processing aime: /root/autodl-tmp/data/offline_eval/math__aime_repeated_8x_240.parquet -> ./evaluation_results/test_offline_leaderboard_output//guru-7b-step320/math__aime_repeated_8x_240.parquet
+Starting generation for aime at Sun Nov  2 23:39:08 CST 2025
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2317, in __getattr__
+    module = self._get_module(self._class_to_module[name])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2347, in _get_module
+    raise e
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2345, in _get_module
+    return importlib.import_module("." + module_name, self.__name__)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/importlib/__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/models/mistral/modeling_mistral.py", line 20, in <module>
+    from ...modeling_layers import (
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/modeling_layers.py", line 28, in <module>
+    from .processing_utils import Unpack
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/processing_utils.py", line 37, in <module>
+    from .image_utils import ChannelDimension, ImageInput, is_vision_available
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/image_utils.py", line 55, in <module>
+    from torchvision.transforms import InterpolationMode
+  File "/root/miniconda3/lib/python3.12/site-packages/torchvision/__init__.py", line 10, in <module>
+    from torchvision import _meta_registrations, datasets, io, models, ops, transforms, utils  # usort:skip
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/torchvision/_meta_registrations.py", line 163, in <module>
+    @torch.library.register_fake("torchvision::nms")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/torch/library.py", line 1063, in register
+    use_lib._register_fake(
+  File "/root/miniconda3/lib/python3.12/site-packages/torch/library.py", line 211, in _register_fake
+    handle = entry.fake_impl.register(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/torch/_library/fake_impl.py", line 50, in register
+    if torch._C._dispatch_has_kernel_for_dispatch_key(self.qualname, "Meta"):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: operator torchvision::nms does not exist
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/root/autodl-tmp/Reasoning360/verl/trainer/main_generation.py", line 40, in <module>
+    from verl.utils.model import compute_position_id_with_mask
+  File "/root/autodl-tmp/Reasoning360/verl/utils/model.py", line 27, in <module>
+    from transformers import (
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2320, in __getattr__
+    raise ModuleNotFoundError(
+ModuleNotFoundError: Could not import module 'MistralForSequenceClassification'. Are this object's requirements defined correctly?
+Processing aime: /root/autodl-tmp/data/offline_eval/math__aime_repeated_8x_240.parquet -> ./evaluation_results/test_offline_leaderboard_output//guru-7b-step320/math__aime_repeated_8x_240.parquet
+Starting generation for aime at Sun Nov  2 23:41:05 CST 2025
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2317, in __getattr__
+    module = self._get_module(self._class_to_module[name])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2347, in _get_module
+    raise e
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2345, in _get_module
+    return importlib.import_module("." + module_name, self.__name__)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/importlib/__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/modeling_utils.py", line 70, in <module>
+    from .loss.loss_utils import LOSS_MAPPING
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/loss/loss_utils.py", line 21, in <module>
+    from .loss_d_fine import DFineForObjectDetectionLoss
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/loss/loss_d_fine.py", line 21, in <module>
+    from .loss_for_object_detection import (
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/loss/loss_for_object_detection.py", line 32, in <module>
+    from transformers.image_transforms import center_to_corners_format
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/image_transforms.py", line 22, in <module>
+    from .image_utils import (
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/image_utils.py", line 55, in <module>
+    from torchvision.transforms import InterpolationMode
+  File "/root/miniconda3/lib/python3.12/site-packages/torchvision/__init__.py", line 10, in <module>
+    from torchvision import _meta_registrations, datasets, io, models, ops, transforms, utils  # usort:skip
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/torchvision/_meta_registrations.py", line 163, in <module>
+    @torch.library.register_fake("torchvision::nms")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/torch/library.py", line 1063, in register
+    use_lib._register_fake(
+  File "/root/miniconda3/lib/python3.12/site-packages/torch/library.py", line 211, in _register_fake
+    handle = entry.fake_impl.register(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/torch/_library/fake_impl.py", line 50, in register
+    if torch._C._dispatch_has_kernel_for_dispatch_key(self.qualname, "Meta"):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: operator torchvision::nms does not exist
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/root/autodl-tmp/Reasoning360/verl/trainer/main_generation.py", line 40, in <module>
+    from verl.utils.model import compute_position_id_with_mask
+  File "/root/autodl-tmp/Reasoning360/verl/utils/model.py", line 27, in <module>
+    from transformers import (
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2320, in __getattr__
+    raise ModuleNotFoundError(
+ModuleNotFoundError: Could not import module 'PreTrainedModel'. Are this object's requirements defined correctly?
+Processing aime: /root/autodl-tmp/data/offline_eval/math__aime_repeated_8x_240.parquet -> ./evaluation_results/test_offline_leaderboard_output//guru-7b-step320/math__aime_repeated_8x_240.parquet
+Starting generation for aime at Sun Nov  2 23:41:33 CST 2025
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2317, in __getattr__
+    module = self._get_module(self._class_to_module[name])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2347, in _get_module
+    raise e
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2345, in _get_module
+    return importlib.import_module("." + module_name, self.__name__)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/importlib/__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/modeling_utils.py", line 70, in <module>
+    from .loss.loss_utils import LOSS_MAPPING
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/loss/loss_utils.py", line 21, in <module>
+    from .loss_d_fine import DFineForObjectDetectionLoss
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/loss/loss_d_fine.py", line 21, in <module>
+    from .loss_for_object_detection import (
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/loss/loss_for_object_detection.py", line 32, in <module>
+    from transformers.image_transforms import center_to_corners_format
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/image_transforms.py", line 22, in <module>
+    from .image_utils import (
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/image_utils.py", line 55, in <module>
+    from torchvision.transforms import InterpolationMode
+  File "/root/miniconda3/lib/python3.12/site-packages/torchvision/__init__.py", line 10, in <module>
+    from torchvision import _meta_registrations, datasets, io, models, ops, transforms, utils  # usort:skip
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/torchvision/_meta_registrations.py", line 163, in <module>
+    @torch.library.register_fake("torchvision::nms")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/torch/library.py", line 1063, in register
+    use_lib._register_fake(
+  File "/root/miniconda3/lib/python3.12/site-packages/torch/library.py", line 211, in _register_fake
+    handle = entry.fake_impl.register(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/torch/_library/fake_impl.py", line 50, in register
+    if torch._C._dispatch_has_kernel_for_dispatch_key(self.qualname, "Meta"):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: operator torchvision::nms does not exist
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/root/autodl-tmp/Reasoning360/verl/trainer/main_generation.py", line 42, in <module>
+    from verl.utils.model import compute_position_id_with_mask
+  File "/root/autodl-tmp/Reasoning360/verl/utils/model.py", line 27, in <module>
+    from transformers import (
+  File "/root/miniconda3/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2320, in __getattr__
+    raise ModuleNotFoundError(
+ModuleNotFoundError: Could not import module 'PreTrainedModel'. Are this object's requirements defined correctly?
+Processing aime: /root/autodl-tmp/data/offline_eval/math__aime_repeated_8x_240.parquet -> ./evaluation_results/test_offline_leaderboard_output//guru-7b-step320/math__aime_repeated_8x_240.parquet
+Starting generation for aime at Sun Nov  2 23:42:11 CST 2025
+2025-11-02 23:42:19,536	WARNING utils.py:460 -- Detecting docker specified CPUs. In previous versions of Ray, CPU detection in containers was incorrect. Please ensure that Ray has enough CPUs allocated. As a temporary workaround to revert to the prior behavior, set `RAY_USE_MULTIPROCESSING_CPU_COUNT=1` as an env var before starting Ray. Set the env var: `RAY_DISABLE_DOCKER_CPU_WARNING=1` to mute this warning.
+2025-11-02 23:42:19,816	INFO worker.py:2003 -- Started a local Ray instance. View the dashboard at [1m[32mhttp://127.0.0.1:8265 [39m[22m
+/root/miniconda3/lib/python3.12/site-packages/ray/_private/worker.py:2051: FutureWarning: Tip: In future versions of Ray, Ray will no longer override accelerator visible devices env var if num_gpus=0 or num_gpus=None (default). To enable this behavior and turn off this error message, set RAY_ACCEL_ENV_VAR_OVERRIDE_ON_ZERO=0
+  warnings.warn(
+[36m(main_task pid=137751)[0m '(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /LLM360/guru-7b-step320/resolve/main/tokenizer_config.json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7fac4a290350>: Failed to establish a new connection: [Errno 101] Network is unreachable'))"), '(Request ID: 8b81d940-f329-4939-8de1-eca3821a8cb6)')' thrown while requesting HEAD https://huggingface.co/LLM360/guru-7b-step320/resolve/main/tokenizer_config.json
+[36m(main_task pid=137751)[0m WARNING:2025-11-02 23:42:34,772:'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /LLM360/guru-7b-step320/resolve/main/tokenizer_config.json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7fac4a290350>: Failed to establish a new connection: [Errno 101] Network is unreachable'))"), '(Request ID: 8b81d940-f329-4939-8de1-eca3821a8cb6)')' thrown while requesting HEAD https://huggingface.co/LLM360/guru-7b-step320/resolve/main/tokenizer_config.json
+[36m(main_task pid=137751)[0m Retrying in 1s [Retry 1/5].
+[36m(main_task pid=137751)[0m WARNING:2025-11-02 23:42:34,773:Retrying in 1s [Retry 1/5].
+[36m(main_task pid=137751)[0m '(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /LLM360/guru-7b-step320/resolve/main/tokenizer_config.json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7fac49f18a10>: Failed to establish a new connection: [Errno 101] Network is unreachable'))"), '(Request ID: af883355-4f17-48b4-a6bc-28b0eaa5df98)')' thrown while requesting HEAD https://huggingface.co/LLM360/guru-7b-step320/resolve/main/tokenizer_config.json
+[36m(main_task pid=137751)[0m WARNING:2025-11-02 23:42:45,835:'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /LLM360/guru-7b-step320/resolve/main/tokenizer_config.json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7fac49f18a10>: Failed to establish a new connection: [Errno 101] Network is unreachable'))"), '(Request ID: af883355-4f17-48b4-a6bc-28b0eaa5df98)')' thrown while requesting HEAD https://huggingface.co/LLM360/guru-7b-step320/resolve/main/tokenizer_config.json
+[36m(main_task pid=137751)[0m Retrying in 2s [Retry 2/5].
+[36m(main_task pid=137751)[0m WARNING:2025-11-02 23:42:45,836:Retrying in 2s [Retry 2/5].
+[36m(main_task pid=137751)[0m '(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /LLM360/guru-7b-step320/resolve/main/tokenizer_config.json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7fac4a2f94c0>: Failed to establish a new connection: [Errno 101] Network is unreachable'))"), '(Request ID: f6c5df0f-f4c4-4391-a4a6-8d29b7bcbc9f)')' thrown while requesting HEAD https://huggingface.co/LLM360/guru-7b-step320/resolve/main/tokenizer_config.json
+[36m(main_task pid=137751)[0m WARNING:2025-11-02 23:42:57,864:'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /LLM360/guru-7b-step320/resolve/main/tokenizer_config.json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7fac4a2f94c0>: Failed to establish a new connection: [Errno 101] Network is unreachable'))"), '(Request ID: f6c5df0f-f4c4-4391-a4a6-8d29b7bcbc9f)')' thrown while requesting HEAD https://huggingface.co/LLM360/guru-7b-step320/resolve/main/tokenizer_config.json
+[36m(main_task pid=137751)[0m Retrying in 4s [Retry 3/5].
+[36m(main_task pid=137751)[0m WARNING:2025-11-02 23:42:57,864:Retrying in 4s [Retry 3/5].
+[36m(main_task pid=137751)[0m '(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /LLM360/guru-7b-step320/resolve/main/tokenizer_config.json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7fb6e813cd10>: Failed to establish a new connection: [Errno 101] Network is unreachable'))"), '(Request ID: f57ed74b-e005-40f5-a2f3-3f8802cfd862)')' thrown while requesting HEAD https://huggingface.co/LLM360/guru-7b-step320/resolve/main/tokenizer_config.json
+[36m(main_task pid=137751)[0m WARNING:2025-11-02 23:43:11,935:'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /LLM360/guru-7b-step320/resolve/main/tokenizer_config.json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7fb6e813cd10>: Failed to establish a new connection: [Errno 101] Network is unreachable'))"), '(Request ID: f57ed74b-e005-40f5-a2f3-3f8802cfd862)')' thrown while requesting HEAD https://huggingface.co/LLM360/guru-7b-step320/resolve/main/tokenizer_config.json
+[36m(main_task pid=137751)[0m Retrying in 8s [Retry 4/5].
+[36m(main_task pid=137751)[0m WARNING:2025-11-02 23:43:11,935:Retrying in 8s [Retry 4/5].
+[36m(main_task pid=137751)[0m '(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /LLM360/guru-7b-step320/resolve/main/tokenizer_config.json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7fac49f5f050>: Failed to establish a new connection: [Errno 101] Network is unreachable'))"), '(Request ID: 774eb6c4-f5fc-4315-ad14-2601ddb1ec5d)')' thrown while requesting HEAD https://huggingface.co/LLM360/guru-7b-step320/resolve/main/tokenizer_config.json
+[36m(main_task pid=137751)[0m WARNING:2025-11-02 23:43:30,002:'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /LLM360/guru-7b-step320/resolve/main/tokenizer_config.json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7fac49f5f050>: Failed to establish a new connection: [Errno 101] Network is unreachable'))"), '(Request ID: 774eb6c4-f5fc-4315-ad14-2601ddb1ec5d)')' thrown while requesting HEAD https://huggingface.co/LLM360/guru-7b-step320/resolve/main/tokenizer_config.json
+[36m(main_task pid=137751)[0m Retrying in 8s [Retry 5/5].
+[36m(main_task pid=137751)[0m WARNING:2025-11-02 23:43:30,002:Retrying in 8s [Retry 5/5].
+[36m(main_task pid=137751)[0m '(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /LLM360/guru-7b-step320/resolve/main/tokenizer_config.json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7fac49f5f650>: Failed to establish a new connection: [Errno 101] Network is unreachable'))"), '(Request ID: cc9024cc-93ae-46c3-ba2b-384ae5506126)')' thrown while requesting HEAD https://huggingface.co/LLM360/guru-7b-step320/resolve/main/tokenizer_config.json
+[36m(main_task pid=137751)[0m WARNING:2025-11-02 23:43:48,026:'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /LLM360/guru-7b-step320/resolve/main/tokenizer_config.json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7fac49f5f650>: Failed to establish a new connection: [Errno 101] Network is unreachable'))"), '(Request ID: cc9024cc-93ae-46c3-ba2b-384ae5506126)')' thrown while requesting HEAD https://huggingface.co/LLM360/guru-7b-step320/resolve/main/tokenizer_config.json
+[36m(main_task pid=137751)[0m '(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /LLM360/guru-7b-step320/resolve/main/config.json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7fac49f5ff20>: Failed to establish a new connection: [Errno 101] Network is unreachable'))"), '(Request ID: 34658e8b-68e9-4975-8f95-d20a56eb8a46)')' thrown while requesting HEAD https://huggingface.co/LLM360/guru-7b-step320/resolve/main/config.json
+[36m(main_task pid=137751)[0m WARNING:2025-11-02 23:43:58,091:'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /LLM360/guru-7b-step320/resolve/main/config.json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7fac49f5ff20>: Failed to establish a new connection: [Errno 101] Network is unreachable'))"), '(Request ID: 34658e8b-68e9-4975-8f95-d20a56eb8a46)')' thrown while requesting HEAD https://huggingface.co/LLM360/guru-7b-step320/resolve/main/config.json
+[36m(main_task pid=137751)[0m Retrying in 1s [Retry 1/5].
+[36m(main_task pid=137751)[0m WARNING:2025-11-02 23:43:58,092:Retrying in 1s [Retry 1/5].
+[36m(main_task pid=137751)[0m '(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /LLM360/guru-7b-step320/resolve/main/config.json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7fac49fa0230>: Failed to establish a new connection: [Errno 101] Network is unreachable'))"), '(Request ID: f552217c-efbb-4300-b850-765120fdc8e1)')' thrown while requesting HEAD https://huggingface.co/LLM360/guru-7b-step320/resolve/main/config.json
+[36m(main_task pid=137751)[0m WARNING:2025-11-02 23:44:09,137:'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /LLM360/guru-7b-step320/resolve/main/config.json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7fac49fa0230>: Failed to establish a new connection: [Errno 101] Network is unreachable'))"), '(Request ID: f552217c-efbb-4300-b850-765120fdc8e1)')' thrown while requesting HEAD https://huggingface.co/LLM360/guru-7b-step320/resolve/main/config.json
+[36m(main_task pid=137751)[0m Retrying in 2s [Retry 2/5].
+[36m(main_task pid=137751)[0m WARNING:2025-11-02 23:44:09,138:Retrying in 2s [Retry 2/5].
+[36m(main_task pid=137751)[0m '(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /LLM360/guru-7b-step320/resolve/main/config.json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7fac49fa0620>: Failed to establish a new connection: [Errno 101] Network is unreachable'))"), '(Request ID: 5e86de8c-7c71-4789-93e4-ce38d70cc804)')' thrown while requesting HEAD https://huggingface.co/LLM360/guru-7b-step320/resolve/main/config.json
+[36m(main_task pid=137751)[0m WARNING:2025-11-02 23:44:21,199:'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /LLM360/guru-7b-step320/resolve/main/config.json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7fac49fa0620>: Failed to establish a new connection: [Errno 101] Network is unreachable'))"), '(Request ID: 5e86de8c-7c71-4789-93e4-ce38d70cc804)')' thrown while requesting HEAD https://huggingface.co/LLM360/guru-7b-step320/resolve/main/config.json
+[36m(main_task pid=137751)[0m Retrying in 4s [Retry 3/5].
+[36m(main_task pid=137751)[0m WARNING:2025-11-02 23:44:21,200:Retrying in 4s [Retry 3/5].
+[36m(main_task pid=137751)[0m '(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /LLM360/guru-7b-step320/resolve/main/config.json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7fac49fa0950>: Failed to establish a new connection: [Errno 101] Network is unreachable'))"), '(Request ID: 48707546-e63a-4fb9-a442-9f7a339b72ee)')' thrown while requesting HEAD https://huggingface.co/LLM360/guru-7b-step320/resolve/main/config.json
+[36m(main_task pid=137751)[0m WARNING:2025-11-02 23:44:35,252:'(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /LLM360/guru-7b-step320/resolve/main/config.json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7fac49fa0950>: Failed to establish a new connection: [Errno 101] Network is unreachable'))"), '(Request ID: 48707546-e63a-4fb9-a442-9f7a339b72ee)')' thrown while requesting HEAD https://huggingface.co/LLM360/guru-7b-step320/resolve/main/config.json
+[36m(main_task pid=137751)[0m Retrying in 8s [Retry 4/5].
+[36m(main_task pid=137751)[0m WARNING:2025-11-02 23:44:35,252:Retrying in 8s [Retry 4/5].
+Processing aime: /root/autodl-tmp/data/offline_eval/math__aime_repeated_8x_240.parquet -> ./evaluation_results/test_offline_leaderboard_output//guru-7b-step320/math__aime_repeated_8x_240.parquet
+Starting generation for aime at Sun Nov  2 23:44:48 CST 2025
+2025-11-02 23:44:56,300	WARNING utils.py:460 -- Detecting docker specified CPUs. In previous versions of Ray, CPU detection in containers was incorrect. Please ensure that Ray has enough CPUs allocated. As a temporary workaround to revert to the prior behavior, set `RAY_USE_MULTIPROCESSING_CPU_COUNT=1` as an env var before starting Ray. Set the env var: `RAY_DISABLE_DOCKER_CPU_WARNING=1` to mute this warning.
+2025-11-02 23:44:56,640	INFO worker.py:2003 -- Started a local Ray instance. View the dashboard at [1m[32mhttp://127.0.0.1:8265 [39m[22m
+/root/miniconda3/lib/python3.12/site-packages/ray/_private/worker.py:2051: FutureWarning: Tip: In future versions of Ray, Ray will no longer override accelerator visible devices env var if num_gpus=0 or num_gpus=None (default). To enable this behavior and turn off this error message, set RAY_ACCEL_ENV_VAR_OVERRIDE_ON_ZERO=0
+  warnings.warn(
+[36m(main_task pid=152384)[0m WARNING:2025-11-02 23:45:19,974:Waiting for register center actor XPkfr8_register_center to be ready. Elapsed time: 0 seconds out of 300 seconds.
+[36m(main_task pid=152384)[0m {'actor': {'entropy_checkpointing': False,
+[36m(main_task pid=152384)[0m            'entropy_from_logits_with_chunking': False,
+[36m(main_task pid=152384)[0m            'fsdp_config': {'forward_prefetch': False, 'fsdp_size': -1},
+[36m(main_task pid=152384)[0m            'strategy': 'fsdp',
+[36m(main_task pid=152384)[0m            'ulysses_sequence_parallel_size': 1},
+[36m(main_task pid=152384)[0m  'data': {'batch_size': 16,
+[36m(main_task pid=152384)[0m           'n_samples': 4,
+[36m(main_task pid=152384)[0m           'output_path': './evaluation_results/test_offline_leaderboard_output//guru-7b-step320/math__aime_repeated_8x_240.parquet',
+[36m(main_task pid=152384)[0m           'path': '/root/autodl-tmp/data/offline_eval/math__aime_repeated_8x_240.parquet',
+[36m(main_task pid=152384)[0m           'prompt_key': 'prompt'},
+[36m(main_task pid=152384)[0m  'model': {'external_lib': None,
+[36m(main_task pid=152384)[0m            'path': 'LLM360/guru-7b-step320',
+[36m(main_task pid=152384)[0m            'trust_remote_code': True},
+[36m(main_task pid=152384)[0m  'ray_init': {'num_cpus': None, 'timeline_json_file': None},
+[36m(main_task pid=152384)[0m  'rollout': {'calculate_log_probs': False,
+[36m(main_task pid=152384)[0m              'disable_log_stats': True,
+[36m(main_task pid=152384)[0m              'do_sample': True,
+[36m(main_task pid=152384)[0m              'dtype': 'bfloat16',
+[36m(main_task pid=152384)[0m              'enable_chunked_prefill': True,
+[36m(main_task pid=152384)[0m              'enforce_eager': True,
+[36m(main_task pid=152384)[0m              'free_cache_engine': True,
+[36m(main_task pid=152384)[0m              'gpu_memory_utilization': 0.9,
+[36m(main_task pid=152384)[0m              'ignore_eos': False,
+[36m(main_task pid=152384)[0m              'load_format': 'dummy_dtensor',
+[36m(main_task pid=152384)[0m              'log_prob_micro_batch_size': None,
+[36m(main_task pid=152384)[0m              'log_prob_micro_batch_size_per_gpu': 8,
+[36m(main_task pid=152384)[0m              'max_model_len': None,
+[36m(main_task pid=152384)[0m              'max_num_batched_tokens': 6144,
+[36m(main_task pid=152384)[0m              'max_num_seqs': 1024,
+[36m(main_task pid=152384)[0m              'mode': 'sync',
+[36m(main_task pid=152384)[0m              'n': 1,
+[36m(main_task pid=152384)[0m              'name': 'vllm',
+[36m(main_task pid=152384)[0m              'prompt_length': 2048,
+[36m(main_task pid=152384)[0m              'response_length': 4096,
+[36m(main_task pid=152384)[0m              'temperature': 1.0,
+[36m(main_task pid=152384)[0m              'tensor_model_parallel_size': 1,
+[36m(main_task pid=152384)[0m              'top_k': 0,
+[36m(main_task pid=152384)[0m              'top_p': 0.7},
+[36m(main_task pid=152384)[0m  'trainer': {'device': 'cuda', 'n_gpus_per_node': 1, 'nnodes': 1}}
+[36m(ActorRolloutRefWorker pid=154975)[0m [Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+Error executing job with overrides: ['trainer.nnodes=1', 'trainer.n_gpus_per_node=1', 'data.path=/root/autodl-tmp/data/offline_eval/math__aime_repeated_8x_240.parquet', 'data.prompt_key=prompt', 'data.n_samples=4', 'data.batch_size=16', 'data.output_path=./evaluation_results/test_offline_leaderboard_output//guru-7b-step320/math__aime_repeated_8x_240.parquet', 'model.path=LLM360/guru-7b-step320', '+model.trust_remote_code=True', 'rollout.temperature=1.0', 'rollout.top_k=0', 'rollout.top_p=0.7', 'rollout.prompt_length=2048', 'rollout.response_length=4096', 'rollout.max_num_batched_tokens=6144', 'rollout.tensor_model_parallel_size=1', 'rollout.gpu_memory_utilization=0.9']
+Traceback (most recent call last):
+  File "/root/autodl-tmp/Reasoning360/verl/trainer/main_generation.py", line 104, in main
+    run_generation(config)
+  File "/root/autodl-tmp/Reasoning360/verl/trainer/main_generation.py", line 115, in run_generation
+    ray.get(main_task.remote(config))
+  File "/root/miniconda3/lib/python3.12/site-packages/ray/_private/auto_init_hook.py", line 22, in auto_init_wrapper
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/ray/_private/client_mode_hook.py", line 104, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/ray/_private/worker.py", line 2961, in get
+    values, debugger_breakpoint = worker.get_objects(
+                                  ^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/ray/_private/worker.py", line 1026, in get_objects
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(ImportError): [36mray::main_task()[39m (pid=152384, ip=172.17.0.4)
+  File "/root/autodl-tmp/Reasoning360/verl/trainer/main_generation.py", line 185, in main_task
+    wg.init_model()
+  File "/root/autodl-tmp/Reasoning360/verl/single_controller/ray/base.py", line 50, in __call__
+    output = ray.get(output)
+             ^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^
+                                  ^^^^^^^^^^^^^^^^^^^
+ray.exceptions.RayTaskError(ImportError): [36mray::ActorRolloutRefWorker.init_model()[39m (pid=154975, ip=172.17.0.4, actor_id=e546f764717dfd875852092601000000, repr=<verl.workers.fsdp_workers.ActorRolloutRefWorker object at 0x7fc9b29ff890>)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/Reasoning360/verl/single_controller/base/decorator.py", line 689, in inner
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/Reasoning360/verl/workers/fsdp_workers.py", line 564, in init_model
+    from verl.workers.actor import DataParallelPPOActor
+  File "/root/autodl-tmp/Reasoning360/verl/workers/actor/__init__.py", line 16, in <module>
+    from .dp_actor import DataParallelPPOActor
+  File "/root/autodl-tmp/Reasoning360/verl/workers/actor/dp_actor.py", line 40, in <module>
+    from flash_attn.bert_padding import index_first_axis, pad_input, rearrange, unpad_input
+  File "/root/miniconda3/lib/python3.12/site-packages/flash_attn/__init__.py", line 3, in <module>
+    from flash_attn.flash_attn_interface import (
+  File "/root/miniconda3/lib/python3.12/site-packages/flash_attn/flash_attn_interface.py", line 15, in <module>
+    import flash_attn_2_cuda as flash_attn_gpu
+ImportError: /root/miniconda3/lib/python3.12/site-packages/flash_attn_2_cuda.cpython-312-x86_64-linux-gnu.so: undefined symbol: _ZN3c105ErrorC2ENS_14SourceLocationESs
+
+Set the environment variable HYDRA_FULL_ERROR=1 for a complete stack trace.

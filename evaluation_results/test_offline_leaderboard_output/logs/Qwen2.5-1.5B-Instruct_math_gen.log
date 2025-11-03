@@ -1,0 +1,109 @@
+Processing math: /root/autodl-tmp/data/offline_eval/math__math_500.parquet -> ./evaluation_results/test_offline_leaderboard_output//Qwen2.5-1.5B-Instruct/math__math_500.parquet
+Starting generation for math at Mon Nov  3 14:07:31 CST 2025
+`torch_dtype` is deprecated! Use `dtype` instead!
+DISABLE_RAY=1 detected; using local HF generation on single GPU.
+{'actor': {'entropy_checkpointing': False,
+           'entropy_from_logits_with_chunking': False,
+           'fsdp_config': {'forward_prefetch': False, 'fsdp_size': -1},
+           'strategy': 'fsdp',
+           'ulysses_sequence_parallel_size': 1},
+ 'data': {'batch_size': 16,
+          'n_samples': 1,
+          'output_path': './evaluation_results/test_offline_leaderboard_output/Qwen2.5-1.5B-Instruct/math__math_500.parquet',
+          'path': '/root/autodl-tmp/data/offline_eval/math__math_500.parquet',
+          'prompt_key': 'prompt'},
+ 'model': {'attn_implementation': 'eager',
+           'external_lib': None,
+           'path': '/root/autodl-tmp/Qwen2.5-1.5B-Instruct',
+           'trust_remote_code': True},
+ 'ray_init': {'num_cpus': None, 'timeline_json_file': None},
+ 'rollout': {'calculate_log_probs': False,
+             'disable_log_stats': True,
+             'do_sample': True,
+             'dtype': 'bfloat16',
+             'enable_chunked_prefill': True,
+             'enforce_eager': True,
+             'free_cache_engine': True,
+             'gpu_memory_utilization': 0.5,
+             'ignore_eos': False,
+             'load_format': 'dummy_dtensor',
+             'log_prob_micro_batch_size': None,
+             'log_prob_micro_batch_size_per_gpu': 8,
+             'max_model_len': None,
+             'max_num_batched_tokens': 8192,
+             'max_num_seqs': 1024,
+             'mode': 'sync',
+             'n': 1,
+             'name': 'vllm',
+             'prompt_length': 2048,
+             'response_length': 4096,
+             'temperature': 1.0,
+             'tensor_model_parallel_size': 1,
+             'top_k': 0,
+             'top_p': 0.7},
+ 'trainer': {'device': 'cuda', 'n_gpus_per_node': 1, 'nnodes': 1}}
+[1/32] Start to process.
+[1/32] Start to generate.
+[2/32] Start to process.
+[2/32] Start to generate.
+[3/32] Start to process.
+[3/32] Start to generate.
+[4/32] Start to process.
+[4/32] Start to generate.
+[5/32] Start to process.
+[5/32] Start to generate.
+[6/32] Start to process.
+[6/32] Start to generate.
+[7/32] Start to process.
+[7/32] Start to generate.
+[8/32] Start to process.
+[8/32] Start to generate.
+[9/32] Start to process.
+[9/32] Start to generate.
+[10/32] Start to process.
+[10/32] Start to generate.
+[11/32] Start to process.
+[11/32] Start to generate.
+[12/32] Start to process.
+[12/32] Start to generate.
+[13/32] Start to process.
+[13/32] Start to generate.
+[14/32] Start to process.
+[14/32] Start to generate.
+[15/32] Start to process.
+[15/32] Start to generate.
+[16/32] Start to process.
+[16/32] Start to generate.
+[17/32] Start to process.
+[17/32] Start to generate.
+[18/32] Start to process.
+[18/32] Start to generate.
+[19/32] Start to process.
+[19/32] Start to generate.
+[20/32] Start to process.
+[20/32] Start to generate.
+[21/32] Start to process.
+[21/32] Start to generate.
+[22/32] Start to process.
+[22/32] Start to generate.
+[23/32] Start to process.
+[23/32] Start to generate.
+[24/32] Start to process.
+[24/32] Start to generate.
+[25/32] Start to process.
+[25/32] Start to generate.
+[26/32] Start to process.
+[26/32] Start to generate.
+[27/32] Start to process.
+[27/32] Start to generate.
+[28/32] Start to process.
+[28/32] Start to generate.
+[29/32] Start to process.
+[29/32] Start to generate.
+[30/32] Start to process.
+[30/32] Start to generate.
+[31/32] Start to process.
+[31/32] Start to generate.
+[32/32] Start to process.
+[32/32] Start to generate.
+Completed generation for math at Mon Nov  3 14:22:32 CST 2025
