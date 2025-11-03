@@ -28,7 +28,6 @@ from transformers import (
     AutoConfig,
     AutoModelForCausalLM,
     GenerationConfig,
-    MistralForSequenceClassification,
     PretrainedConfig,
     PreTrainedModel,
 )
@@ -421,6 +420,14 @@ def _load_hf_model(config, model_config, is_value_model, local_cache_path):
         warnings.simplefilter("ignore")
         # TODO: to find a better way to load mistral7b-rm lm_head
         if "mistral7b-rm" in config.model.path:
+            # Import lazily to avoid hard dependency when not using mistral7b-rm
+            try:
+                from transformers import MistralForSequenceClassification
+            except Exception as e:
+                raise ModuleNotFoundError(
+                    "MistralForSequenceClassification is not available in your transformers build. "
+                    "Please install a compatible transformers version or use a non-mistral7b-rm model."
+                ) from e
             model = MistralForSequenceClassification.from_pretrained(
                 local_model_path,
                 torch_dtype="auto",

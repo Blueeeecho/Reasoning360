@@ -17,6 +17,7 @@ The input is a parquet file that contains N generated sequences and (optional) t
 """
 
 from collections import defaultdict
+import os
 
 import hydra
 import numpy as np
@@ -25,14 +26,34 @@ import ray
 from tqdm import tqdm
 
 from verl.trainer.ppo.reward import get_custom_reward_fn
+from verl.utils.reward_score import default_compute_score
 from verl.utils.fs import copy_to_local
+
+
+def reduce_scores(score_lst):
+    """Reduce a list of scores which may be floats or dicts.
+    - If list of floats/ints: return their mean as float.
+    - If list of dicts: compute mean per key and return a dict.
+    """
+    if len(score_lst) == 0:
+        return np.nan
+    first = score_lst[0]
+    if isinstance(first, dict):
+        keys = list(first.keys())
+        out = {}
+        for k in keys:
+            vals = [s[k] for s in score_lst if isinstance(s, dict) and k in s]
+            out[k] = float(np.mean(vals)) if len(vals) > 0 else np.nan
+        return out
+    else:
+        return float(np.mean(score_lst))
 
 
 @ray.remote
 def process_item(reward_fn, data_source, response_lst, reward_data):
     ground_truth = reward_data["ground_truth"]
     score_lst = [reward_fn(data_source, r, ground_truth) for r in response_lst]
-    return data_source, np.mean(score_lst)
+    return data_source, reduce_scores(score_lst)
 
 
 @hydra.main(config_path="config", config_name="evaluation", version_base=None)
@@ -45,32 +66,65 @@ def main(config):
 
     total = len(dataset)
 
-    # Initialize Ray
-    if not ray.is_initialized():
-        ray.init(num_cpus=config.ray_init.num_cpus)
+    # Decide whether to use Ray based on environment
+    disable_ray_env = os.environ.get("DISABLE_RAY", "0").lower() in ("1", "true", "yes")
+    use_ray = not disable_ray_env
+    # Initialize Ray only if enabled
+    if use_ray and not ray.is_initialized():
+        # Config may not have ray_init in non-Ray runs; guard access
+        num_cpus = getattr(config, "ray_init", {}).get("num_cpus", None)
+        if num_cpus is None:
+            ray.init()
+        else:
+            ray.init(num_cpus=num_cpus)
 
     # evaluate test_score based on data source
     data_source_reward = defaultdict(list)
     compute_score = get_custom_reward_fn(config)
+    # Fallback to default scorer when no custom reward function is configured
+    if compute_score is None:
+        def compute_score(data_source, solution_str, ground_truth):
+            return default_compute_score(data_source, solution_str, ground_truth)
 
-    # Create remote tasks
-    remote_tasks = [
-        process_item.remote(compute_score, data_sources[i], responses[i], reward_model_data[i]) for i in range(total)
-    ]
+    if use_ray:
+        # Create remote tasks
+        remote_tasks = [
+            process_item.remote(compute_score, data_sources[i], responses[i], reward_model_data[i]) for i in range(total)
+        ]
 
-    # Process results as they come in
-    with tqdm(total=total) as pbar:
-        while len(remote_tasks) > 0:
-            # Use ray.wait to get completed tasks
-            done_ids, remote_tasks = ray.wait(remote_tasks)
-            for result_id in done_ids:
-                data_source, score = ray.get(result_id)
-                data_source_reward[data_source].append(score)
+        # Process results as they come in
+        with tqdm(total=total) as pbar:
+            while len(remote_tasks) > 0:
+                done_ids, remote_tasks = ray.wait(remote_tasks)
+                for result_id in done_ids:
+                    data_source, score = ray.get(result_id)
+                    data_source_reward[data_source].append(score)
+                    pbar.update(1)
+    else:
+        # Local processing without Ray
+        with tqdm(total=total) as pbar:
+            for i in range(total):
+                data_source = data_sources[i]
+                response_lst = responses[i]
+                reward_data = reward_model_data[i]
+                ground_truth = reward_data["ground_truth"]
+                score_lst = [compute_score(data_source, r, ground_truth) for r in response_lst]
+                reduced = reduce_scores(score_lst)
+                data_source_reward[data_source].append(reduced)
                 pbar.update(1)
 
     metric_dict = {}
     for data_source, rewards in data_source_reward.items():
-        metric_dict[f"test_score/{data_source}"] = np.mean(rewards)
+        if len(rewards) == 0:
+            metric_dict[f"test_score/{data_source}"] = np.nan
+            continue
+        first = rewards[0]
+        if isinstance(first, dict):
+            for k in first.keys():
+                vals = [r[k] for r in rewards if isinstance(r, dict) and k in r]
+                metric_dict[f"test_score/{data_source}/{k}"] = float(np.mean(vals)) if len(vals) > 0 else np.nan
+        else:
+            metric_dict[f"test_score/{data_source}"] = float(np.mean(rewards))
 
     print(metric_dict)
 

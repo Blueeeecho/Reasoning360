@@ -1,0 +1,17 @@
+- rollout.name=hf
+- trainer.nnodes=1
+- trainer.n_gpus_per_node=1
+- ray_init.num_cpus=8
+- model.path=/root/autodl-tmp/Qwen2.5-1.5B-Instruct
+- +model.trust_remote_code=True
+- data.path=/root/autodl-tmp/data/offline_eval/math__aime_repeated_8x_240.parquet
+- data.prompt_key=prompt
+- data.n_samples=4
+- data.batch_size=16
+- data.output_path=./evaluation_results/test_offline_leaderboard_output/Qwen2.5-1.5B-Instruct/math__aime_repeated_8x_240.parquet
+- rollout.do_sample=True
+- rollout.temperature=1.0
+- rollout.top_k=0
+- rollout.top_p=0.7
+- rollout.prompt_length=2048
+- rollout.response_length=4096

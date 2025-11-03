@@ -24,6 +24,8 @@ import ray
 
 os.environ["NCCL_DEBUG"] = "WARN"
 os.environ["TOKENIZERS_PARALLELISM"] = "true"
+# Avoid importing torchvision when not needed (fixes torchvision::nms errors)
+os.environ["TRANSFORMERS_NO_TORCHVISION"] = "1"
 # os.environ['TORCH_COMPILE_DISABLE'] = '1'
 
 from pprint import pprint
@@ -103,13 +105,15 @@ def main(config):
 
 
 def run_generation(config) -> None:
+    if os.environ.get("DISABLE_RAY", "0") == "1":
+        print("DISABLE_RAY=1 detected; using local HF generation on single GPU.")
+        run_generation_local(config)
+        return
     if not ray.is_initialized():
-        # this is for local ray cluster
         ray.init(
             runtime_env={"env_vars": {"TOKENIZERS_PARALLELISM": "true", "NCCL_DEBUG": "WARN"}},
             num_cpus=config.ray_init.num_cpus,
         )
-
     ray.get(main_task.remote(config))
 
 
@@ -174,7 +178,11 @@ def main_task(config):
         tokenizer.pad_token = tokenizer.eos_token
 
     ray_cls_with_init = RayClassWithInitArgs(cls=ray.remote(ActorRolloutRefWorker), config=config, role="rollout")
-    resource_pool = RayResourcePool(process_on_nodes=[config.trainer.n_gpus_per_node] * config.trainer.nnodes)
+    # 每 bundle 仅申请 CPU:1 + GPU:1
+    resource_pool = RayResourcePool(
+        process_on_nodes=[config.trainer.n_gpus_per_node] * config.trainer.nnodes,
+        max_colocate_count=1
+    )
     wg = RayWorkerGroup(
         resource_pool=resource_pool,
         ray_cls_with_init=ray_cls_with_init,
@@ -286,6 +294,152 @@ def main_task(config):
             dataset.to_parquet(config.data.output_path)
 
         # NOTE: added by Reasoning360. dump results
+        result_list = [
+            {
+                "prompt": chat,
+                "response": output,
+                "ground_truth": str(ground_truth),
+            }
+            for chat, output, ground_truth in zip(original_chat_lst, output_lst, original_ground_truth_lst)
+        ]
+        model_name = config.model.path.split("/")[-1]
+        with open(config.data.output_path.replace(".parquet", f"_{model_name}.json"), "w", encoding="utf-8") as f:
+            json.dump(result_list, f, indent=2, ensure_ascii=False)
+
+
+def run_generation_local(config) -> None:
+    from pprint import pprint
+    import numpy as np
+    import pandas as pd
+    import torch
+    from transformers import AutoModelForCausalLM
+
+    pprint(OmegaConf.to_container(config, resolve=True))
+    OmegaConf.resolve(config)
+
+    local_path = copy_to_local(config.model.path)
+    trust_remote_code = config.data.get("trust_remote_code", False)
+    tokenizer = hf_tokenizer(local_path, trust_remote_code=trust_remote_code)
+
+    if config.rollout.temperature == 0.0:
+        assert config.data.n_samples == 1, "When temperature=0, n_samples must be 1."
+    assert config.data.n_samples >= 1, "n_samples should always >= 1"
+
+    # read dataset
+    is_polars_df = False
+    if "livecodebench" in config.data.path:
+        import polars as pl
+        dataset = pl.read_parquet(config.data.path)
+        chat_lst = list(dataset[config.data.prompt_key])
+        chat_lst = [list(chat) for chat in chat_lst]
+        ground_truth_lst = list(dataset["reward_model"])
+        is_polars_df = True
+    else:
+        dataset = pd.read_parquet(config.data.path)
+        chat_lst = dataset[config.data.prompt_key].tolist()
+        chat_lst = [chat.tolist() for chat in chat_lst]
+        ground_truth_lst = dataset["reward_model"].tolist()
+
+    # handle n_samples
+    if config.data.n_samples > 1:
+        chat_lst = chat_lst * config.data.n_samples
+        ground_truth_lst = ground_truth_lst * config.data.n_samples
+
+    tokenizer.padding_side = "left"
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    # load HF model locally
+    dtype_str = str(config.rollout.dtype).lower()
+    torch_dtype = torch.bfloat16 if dtype_str in ("bf16", "bfloat16") else torch.float16
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model = AutoModelForCausalLM.from_pretrained(
+        local_path, torch_dtype=torch_dtype, trust_remote_code=trust_remote_code
+    ).to(device)
+    model.eval()
+
+    total_samples = len(chat_lst)
+    config_batch_size = config.data.batch_size
+    num_batch = -(-total_samples // config_batch_size)
+
+    output_lst = []
+
+    for batch_idx in range(num_batch):
+        print(f"[{batch_idx + 1}/{num_batch}] Start to process.")
+        batch_chat_lst = chat_lst[batch_idx * config_batch_size : (batch_idx + 1) * config_batch_size]
+        inputs = tokenizer.apply_chat_template(
+            batch_chat_lst,
+            add_generation_prompt=True,
+            padding=True,
+            truncation=True,
+            max_length=config.rollout.prompt_length,
+            return_tensors="pt",
+            return_dict=True,
+            tokenize=True,
+        )
+        input_ids = inputs["input_ids"].to(device)
+        attention_mask = inputs["attention_mask"].to(device)
+
+        print(f"[{batch_idx + 1}/{num_batch}] Start to generate.")
+        with torch.no_grad():
+            generated = model.generate(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                max_new_tokens=config.rollout.response_length,
+                do_sample=config.rollout.do_sample,
+                temperature=float(config.rollout.temperature),
+                top_k=int(config.rollout.top_k),
+                top_p=float(config.rollout.top_p),
+                pad_token_id=tokenizer.pad_token_id,
+                eos_token_id=tokenizer.eos_token_id,
+            )
+
+        # slice out only the responses
+        gen_only = generated[:, input_ids.shape[-1] :]
+        batch_texts = tokenizer.batch_decode(gen_only, skip_special_tokens=True)
+
+        # remove padding token if present
+        pad_token = tokenizer.pad_token or ""
+        output_text_unpad = [text.replace(pad_token, "") for text in batch_texts]
+        output_lst.extend(output_text_unpad)
+
+        # clear kv cache
+        torch.cuda.empty_cache() if device == "cuda" else None
+
+    # identical saving logic
+    original_data_size = len(dataset)
+    output_lst = np.array(output_lst).reshape(config.data.n_samples, original_data_size)
+    output_lst = output_lst.T.tolist()
+
+    original_chat_lst = chat_lst[:original_data_size]
+    original_ground_truth_lst = ground_truth_lst[:original_data_size]
+
+    should_merge_aime = "aime" in config.data.output_path.lower()
+    dataset["responses"] = output_lst
+
+    if should_merge_aime:
+        print("Detected 'aime' in output path, merging responses by prompt content...")
+        merged_dataset = merge_aime_responses(dataset, output_lst, config.data.prompt_key, "responses")
+        output_dir = os.path.dirname(config.data.output_path)
+        makedirs(output_dir, exist_ok=True)
+        if hasattr(merged_dataset, "write_parquet"):
+            merged_dataset.write_parquet(config.data.output_path)
+        else:
+            merged_dataset.to_parquet(config.data.output_path)
+        print(f"Saved merged AIME responses to {config.data.output_path}")
+    else:
+        if is_polars_df:
+            import polars as pl
+            dataset = dataset.with_columns(pl.Series("responses", output_lst))
+            output_dir = os.path.dirname(config.data.output_path)
+            makedirs(output_dir, exist_ok=True)
+            dataset.write_parquet(config.data.output_path)
+        else:
+            dataset["responses"] = output_lst
+            output_dir = os.path.dirname(config.data.output_path)
+            makedirs(output_dir, exist_ok=True)
+            dataset.to_parquet(config.data.output_path)
+
         result_list = [
             {
                 "prompt": chat,

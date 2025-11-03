@@ -561,10 +561,17 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
 
     @register(dispatch_mode=Dispatch.ONE_TO_ALL)
     def init_model(self):
-        from verl.workers.actor import DataParallelPPOActor
-
         # This is used to import external_lib into the huggingface systems
         import_external_libs(self.config.model.get("external_lib", None))
+
+        # If we're only doing rollout (not actor or ref), skip building the HF model
+        if self._is_rollout and not (self._is_actor or self._is_ref):
+            # Only backends that don't require HF model can return early
+            if self.config.rollout.name in ("vllm", "sglang"):
+                self.rollout, self.rollout_sharding_manager = self._build_rollout(
+                    trust_remote_code=self.config.model.get("trust_remote_code", False)
+                )
+                return
 
         override_model_config = OmegaConf.to_container(self.config.model.get("override_config", OmegaConf.create()))
 
@@ -618,6 +625,8 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
             with open_dict(self.config.actor):
                 self.config.actor.use_remove_padding = use_remove_padding
                 self.config.actor.use_fused_kernels = use_fused_kernels
+            # Only import when actor is needed
+            from verl.workers.actor.dp_actor import DataParallelPPOActor
             self.actor = DataParallelPPOActor(
                 config=self.config.actor, actor_module=self.actor_module_fsdp, actor_optimizer=self.actor_optimizer
             )
@@ -644,6 +653,8 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
             with open_dict(self.config.ref):
                 self.config.ref.use_remove_padding = use_remove_padding
                 self.config.ref.use_fused_kernels = use_fused_kernels
+            # Only import when ref is needed
+            from verl.workers.actor.dp_actor import DataParallelPPOActor
             self.ref_policy = DataParallelPPOActor(config=self.config.ref, actor_module=self.ref_module_fsdp)
 
         if self._is_actor:

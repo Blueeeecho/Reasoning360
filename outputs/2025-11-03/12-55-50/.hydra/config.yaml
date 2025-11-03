@@ -1,0 +1,51 @@
+trainer:
+  nnodes: 1
+  n_gpus_per_node: 1
+  device: cuda
+data:
+  path: /root/autodl-tmp/data/offline_eval/math__aime_repeated_8x_240.parquet
+  prompt_key: prompt
+  n_samples: 4
+  output_path: ./evaluation_results/test_offline_leaderboard_output/Qwen2.5-1.5B-Instruct/math__aime_repeated_8x_240.parquet
+  batch_size: 16
+model:
+  path: /root/autodl-tmp/Qwen2.5-1.5B-Instruct
+  external_lib: null
+  trust_remote_code: true
+  attn_implementation: eager
+rollout:
+  name: hf
+  mode: sync
+  temperature: 1.0
+  top_k: 0
+  top_p: 0.7
+  prompt_length: 2048
+  response_length: 4096
+  dtype: bfloat16
+  gpu_memory_utilization: 0.5
+  ignore_eos: false
+  enforce_eager: true
+  free_cache_engine: true
+  load_format: dummy_dtensor
+  tensor_model_parallel_size: 1
+  max_num_batched_tokens: 8192
+  max_model_len: null
+  max_num_seqs: 1024
+  log_prob_micro_batch_size: null
+  log_prob_micro_batch_size_per_gpu: 8
+  do_sample: true
+  disable_log_stats: true
+  enable_chunked_prefill: true
+  'n': 1
+  calculate_log_probs: false
+actor:
+  strategy: fsdp
+  ulysses_sequence_parallel_size: 1
+  entropy_from_logits_with_chunking: false
+  entropy_checkpointing: false
+  fsdp_config:
+    fsdp_size: -1
+    forward_prefetch: false
+ray_init:
+  num_cpus: null
+  timeline_json_file: null

@@ -1,0 +1,6 @@
+- data.path=./evaluation_results/test_offline_leaderboard_output/Qwen2.5-1.5B-Instruct/math__aime_repeated_8x_240.parquet
+- data.prompt_key=prompt
+- data.response_key=responses
+- data.data_source_key=data_source
+- data.reward_model_key=reward_model
+- ray_init.num_cpus=1

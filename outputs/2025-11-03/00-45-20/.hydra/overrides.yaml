@@ -1,0 +1,15 @@
+- rollout.name=hf
+- model.path=/root/autodl-tmp/Qwen2.5-1.5B-Instruct
+- +model.trust_remote_code=True
+- data.path=/root/autodl-tmp/data/offline_eval/math__aime_repeated_8x_240.parquet
+- data.prompt_key=prompt
+- data.n_samples=1
+- data.batch_size=2
+- data.output_path=./evaluation_results/test_offline_leaderboard_output/Qwen2.5-1.5B-Instruct/math__aime_repeated_8x_240.parquet
+- rollout.do_sample=True
+- rollout.temperature=1.0
+- rollout.top_k=0
+- rollout.top_p=0.7
+- rollout.prompt_length=512
+- rollout.response_length=256
+- rollout.tensor_model_parallel_size=1

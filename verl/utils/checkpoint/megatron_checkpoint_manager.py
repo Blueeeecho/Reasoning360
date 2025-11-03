@@ -473,7 +473,14 @@ class MegatronCheckpointManager(BaseCheckpointManager):
                 with init_empty_weights(), warnings.catch_warnings():
                     warnings.simplefilter("ignore")
                     if "mistral7b-rm" in self.config.model.path:
-                        from transformers import MistralForSequenceClassification
+                        # Import lazily to avoid hard dependency when not using mistral7b-rm
+                        try:
+                            from transformers import MistralForSequenceClassification
+                        except Exception as e:
+                            raise ModuleNotFoundError(
+                                "MistralForSequenceClassification is not available in your transformers build. "
+                                "Please install a compatible transformers version or use a non-mistral7b-rm model."
+                            ) from e
 
                         model = MistralForSequenceClassification.from_pretrained(
                             self.config.model.path

@@ -14,6 +14,7 @@
 
 
 # =================== Cluster Environment ===================
+# 设置环境变量
 export NCCL_DEBUG=info
 export NCCL_ALGO=NVLSTree
 export NCCL_IBEXT_DISABLE=1
@@ -149,7 +150,7 @@ n_nodes=$SLURM_NNODES
 n_gpus_per_node=8
 gpu_ids=0,1,2,3,4,5,6,7
 
-SHARED_DATA_PATH=/mnt/sharefs/users/zhuojun.cheng
+SHARED_DATA_PATH=/root/autodl-tmp/data
 data_folder=${SHARED_DATA_PATH}/guru_data/test/offline_leaderboard_release_0603/
 save_folder=./evaluation_results/test_offline_leaderboard_output/
 model_path=LLM360/guru-7b-step320
