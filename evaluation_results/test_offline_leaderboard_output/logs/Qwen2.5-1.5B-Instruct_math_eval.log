@@ -1,0 +1,4 @@
+Starting evaluation for math at Mon Nov  3 14:22:32 CST 2025
+  0%|          | 0/500 [00:00<?, ?it/s]  0%|          | 2/500 [00:00<00:44, 11.07it/s] 31%|███       | 153/500 [00:00<00:00, 672.47it/s] 59%|█████▉    | 297/500 [00:00<00:00, 958.27it/s] 82%|████████▏ | 411/500 [00:00<00:00, 1004.51it/s]100%|██████████| 500/500 [00:00<00:00, 926.32it/s] 
+{'test_score/math__math/score': 0.468, 'test_score/math__math/acc': 0.468}
+Completed evaluation for math at Mon Nov  3 14:22:36 CST 2025
