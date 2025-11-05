@@ -10,17 +10,17 @@ export TRANSFORMERS_NO_TORCHVISION=1
 export RAY_DISABLE_DOCKER_CPU_WARNING=1
 export RAY_EXPERIMENTAL_NOSET_CUDA_VISIBLE_DEVICES=1
 export PYTHONPATH="/root/autodl-tmp/Reasoning360:${PYTHONPATH:-}"
-# export DISABLE_RAY=1  # 移除/注释掉该行以启用 Ray
-export PYTHONUNBUFFERED=1  # 让 Python 实时输出，配合 tee 实时写日志
-export HYDRA_FULL_ERROR=1  # 如遇错误，打印完整堆栈，便于定位
+# export DISABLE_RAY=1  # Remove/comment out this line to enable Ray
+export PYTHONUNBUFFERED=1  # Force real-time Python output; use tee for live logs
+export HYDRA_FULL_ERROR=1  # Print full stack traces on errors for easier debugging
 
 export FLASH_ATTENTION_FORCE_DISABLED=1
 export HF_USE_FLASH_ATTENTION_2=0
 
-# =================== 设备与路径（可按需修改） ===================
+# =================== Devices and paths (modify as needed) ===================
 n_nodes=${n_nodes:-1}
-n_gpus_per_node=${n_gpus_per_node:-1}   # 示例默认 2，可改为卡数（当前为 1 则设 1）
-gpu_ids=${gpu_ids:-"0"}               # 逗号分隔的 GPU ID 列表；当前单卡可改为 "0"
+n_gpus_per_node=${n_gpus_per_node:-1}   # GPUs per node (set to 1 for single GPU)
+gpu_ids=${gpu_ids:-"0"}               # Comma-separated GPU IDs; use "0" for single GPU
 export CUDA_VISIBLE_DEVICES=${gpu_ids}
 
 SHARED_DATA_PATH=/root/autodl-tmp/data
@@ -29,16 +29,16 @@ save_folder=./evaluation_results/test_offline_leaderboard_output
 model_path=/root/autodl-tmp/guru-7B
 model_name=$(basename "${model_path}")
 
-# 目录准备
+# Prepare directories
 mkdir -p "${save_folder}"
 logs_dir="${save_folder%/}/logs"
 mkdir -p "${logs_dir}"
 
-# =================== 自动启动本地 Ray（可选） ===================
+# =================== Auto-start local Ray (optional) ===================
 if command -v ray >/dev/null 2>&1; then
   if ! ray status >/dev/null 2>&1; then
     echo "Ray 未运行，尝试启动本地 head 节点..."
-    # 启动本地 Ray；如果已运行则忽略错误
+    # Start local Ray; ignore errors if it's already running
     ray start --head --num-cpus "$(nproc)" || true
   fi
 else
@@ -56,7 +56,7 @@ leaderboard_list=(
   # "livebench_data_analysis" "ifeval"
 )
 
-# 域映射
+# Domain mappings
 declare -A domain_mappings
 domain_mappings["aime"]="math"
 domain_mappings["math"]="math"
@@ -78,19 +78,19 @@ domain_mappings["livebench_language"]="ood"
 domain_mappings["livebench_data_analysis"]="ood"
 domain_mappings["ifeval"]="ood"
 
-# =================== 生成参数（Ray + vLLM 友好配置） ===================
+# =================== Generation parameters (Ray + vLLM friendly) ===================
 batch_size=${batch_size:-16}
 temperature=${temperature:-1.0}
 top_p=${top_p:-0.7}
-use_vllm=${use_vllm:-0}  # 1: 使用 vLLM（Ray友好，支持并行），0: 使用 HF（单机更保守）
+use_vllm=${use_vllm:-0}  # 1: use vLLM (Ray-friendly, parallel); 0: use HF (single-machine)
 
-if [[ "${use_vllm}" -eq 1 ]]; then
-  top_k=-1                     # -1 表示 vLLM rollout
+  if [[ "${use_vllm}" -eq 1 ]]; then
+  top_k=-1                     # -1 means vLLM rollout
   tensor_model_parallel_size=${tensor_model_parallel_size:-${n_gpus_per_node}}
   gpu_memory_utilization=${gpu_memory_utilization:-0.9}
   rollout_name=vllm
 else
-  top_k=0                      # 0 表示 HF rollout
+  top_k=0                      # 0 means HF rollout
   tensor_model_parallel_size=${tensor_model_parallel_size:-1}
   gpu_memory_utilization=${gpu_memory_utilization:-0.9}
   rollout_name=hf
@@ -99,7 +99,7 @@ fi
 for leaderboard in "${leaderboard_list[@]}"; do
   domain=${domain_mappings[$leaderboard]}
 
-  # 采样倍数
+  # Sampling multiplier
   if [[ "${leaderboard}" == "aime" || "${leaderboard}" == "aime2025" ]]; then
     n_samples=4
   elif [[ "${leaderboard}" == "arcagi1" || "${leaderboard}" == "livecodebench" || "${leaderboard}" == "humaneval" || "${leaderboard}" == "zebra_puzzle_dataset" || "${leaderboard}" == "multihier" || "${leaderboard}" == "codeio" || "${leaderboard}" == "gpqa_diamond" ]]; then
@@ -108,7 +108,7 @@ for leaderboard in "${leaderboard_list[@]}"; do
     n_samples=1
   fi
 
-  # 长度
+  # Sequence lengths
   if [[ "${leaderboard}" == "arcagi1" || "${leaderboard}" == "multihier" ]]; then
     prompt_length=4096
     response_length=4096
@@ -120,14 +120,14 @@ for leaderboard in "${leaderboard_list[@]}"; do
 gen_log_file="${logs_dir}/${model_name}_${leaderboard}_gen.log"
 eval_log_file="${logs_dir}/${model_name}_${leaderboard}_eval.log"
 
-  # 数据文件模式
+  # Data file pattern
   if [[ "${leaderboard}" == "aime" || "${leaderboard}" == "aime2025" ]]; then
     file_pattern="${domain}__${leaderboard}_repeated_8x_[0-9a-zA-Z]*.parquet"
   else
     file_pattern="${domain}__${leaderboard}_[0-9a-zA-Z]*.parquet"
   fi
 
-  # 遍历该任务下的全部分片（不再只取首个）
+  # Iterate all shards for this task (not only the first)
   mapfile -t matched_files < <(find "${data_folder}" -type f -name "${file_pattern}" | sort)
   if [[ ${#matched_files[@]} -eq 0 ]]; then
     echo "No file found matching pattern: ${file_pattern}. Skipping." | tee -a "${gen_log_file}"
