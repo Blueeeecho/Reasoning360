@@ -28,6 +28,7 @@ from tqdm import tqdm
 from verl.trainer.ppo.reward import get_custom_reward_fn
 from verl.utils.reward_score import default_compute_score
 from verl.utils.fs import copy_to_local
+from hydra.utils import get_original_cwd
 
 
 def reduce_scores(score_lst):
@@ -58,7 +59,14 @@ def process_item(reward_fn, data_source, response_lst, reward_data):
 
 @hydra.main(config_path="config", config_name="evaluation", version_base=None)
 def main(config):
-    local_path = copy_to_local(config.data.path, use_shm=config.data.get("use_shm", False))
+    # Resolve dataset path relative to original project root (Hydra's original cwd)
+    base_dir = get_original_cwd()
+    data_path = config.data.path
+    if not os.path.isabs(data_path):
+        data_path = os.path.abspath(os.path.join(base_dir, data_path))
+
+    # Copy to local if needed (e.g., remote/HDFS), then read
+    local_path = copy_to_local(data_path, use_shm=config.data.get("use_shm", False))
     dataset = pd.read_parquet(local_path)
     responses = dataset[config.data.response_key]
     data_sources = dataset[config.data.data_source_key]

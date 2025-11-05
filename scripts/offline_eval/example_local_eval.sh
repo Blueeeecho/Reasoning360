@@ -69,14 +69,14 @@ gpu_ids=0
 export CUDA_VISIBLE_DEVICES=${gpu_ids}
 
 SHARED_DATA_PATH=/root/autodl-tmp/data
-data_folder=${SHARED_DATA_PATH}/offline_eval
-save_folder=./evaluation_results/test_offline_leaderboard_output/
+data_folder=${SHARED_DATA_PATH}/test
+save_folder=./evaluation_results/test_offline_leaderboard_output
 model_path=/root/autodl-tmp/Qwen2.5-1.5B-Instruct
 model_name=$(basename "$model_path")
 
 # 目录准备
 mkdir -p "$save_folder"
-logs_dir="${save_folder}logs/"
+logs_dir="${save_folder}/logs"
 mkdir -p "$logs_dir"
 
 # =================== Generate Parameters (Conservative Configuration for Single Card) ===================
@@ -109,8 +109,8 @@ for leaderboard in "${leaderboard_list[@]}"; do
         response_length=4096
     fi
 
-    gen_log_file="${logs_dir}${model_name}_${leaderboard}_gen.log"
-    eval_log_file="${logs_dir}${model_name}_${leaderboard}_eval.log"
+    gen_log_file="${logs_dir}/${model_name}_${leaderboard}_gen.log"
+    eval_log_file="${logs_dir}/${model_name}_${leaderboard}_eval.log"
 
 
     if [ "$leaderboard" == "aime" ] || [ "$leaderboard" == "aime2025" ]; then

@@ -94,11 +94,15 @@ class HFRollout(BaseRollout):
         idx = prompts.batch["input_ids"]  # (bs, prompt_length)
         prompt_length = idx.size(1)
         attention_mask = prompts.batch["attention_mask"]  # left-padded attention_mask
-        position_ids = prompts.batch["position_ids"]
+        # Position IDs may be model-specific; allow absence to use model defaults
+        position_ids = prompts.batch.get("position_ids", None)
 
         # used to construct attention_mask
         eos_token_id = prompts.meta_info["eos_token_id"]
         pad_token_id = prompts.meta_info["pad_token_id"]
+        # Ensure pad_token_id is defined for padding; fallback to EOS if None
+        if pad_token_id is None:
+            pad_token_id = eos_token_id
 
         self.module.eval()
         param_ctx = contextlib.nullcontext()
@@ -107,10 +111,9 @@ class HFRollout(BaseRollout):
             # recurse need to set to False according to https://github.com/pytorch/pytorch/issues/100069
             param_ctx = FSDP.summon_full_params(self.module, writeback=False, recurse=False)
         with param_ctx, torch.autocast(device_type=get_device_name(), dtype=torch.bfloat16):
-            output = self.module.generate(
+            gen_kwargs = dict(
                 input_ids=idx,
                 attention_mask=attention_mask,
-                position_ids=position_ids,
                 do_sample=do_sample,
                 max_new_tokens=response_length,
                 eos_token_id=eos_token_id,
@@ -120,6 +123,9 @@ class HFRollout(BaseRollout):
                 return_dict_in_generate=True,
                 use_cache=True,
             )
+            if position_ids is not None:
+                gen_kwargs["position_ids"] = position_ids
+            output = self.module.generate(**gen_kwargs)
 
         # TODO: filter out the seq with no answers like ds-chat
         seq = output.sequences
@@ -131,8 +137,12 @@ class HFRollout(BaseRollout):
         delta_length = sequence_length - seq.shape[1]
 
         if delta_length > 0:
-            delta_tokens = torch.ones(size=(generated_batch_size, delta_length), device=seq.device, dtype=seq.dtype)
-            delta_tokens = pad_token_id * delta_tokens
+            delta_tokens = torch.full(
+                (generated_batch_size, delta_length),
+                pad_token_id,
+                device=seq.device,
+                dtype=seq.dtype,
+            )
             seq = torch.cat((seq, delta_tokens), dim=1)
         assert seq.shape[1] == sequence_length
 
@@ -146,11 +156,14 @@ class HFRollout(BaseRollout):
         response = seq[:, prompt_length:]  # (generated_batch_size, response_length)
 
         response_length = response.size(1)
-        delta_position_id = torch.arange(1, response_length + 1, device=position_ids.device)
+        # Choose a device for delta based on available tensors
+        device_for_delta = position_ids.device if position_ids is not None else seq.device
+        delta_position_id = torch.arange(1, response_length + 1, device=device_for_delta)
         delta_position_id = delta_position_id.unsqueeze(0).repeat(generated_batch_size, 1)
 
-        response_position_ids = position_ids[:, -1:] + delta_position_id
-        position_ids = torch.cat([position_ids, response_position_ids], dim=-1)
+        if position_ids is not None:
+            response_position_ids = position_ids[:, -1:] + delta_position_id
+            position_ids = torch.cat([position_ids, response_position_ids], dim=-1)
 
         response_attention_mask = get_response_mask(
             response_id=response, eos_token=eos_token_id, dtype=attention_mask.dtype
@@ -163,7 +176,7 @@ class HFRollout(BaseRollout):
                 "responses": response,
                 "input_ids": seq,
                 "attention_mask": attention_mask,
-                "position_ids": position_ids,
+                **({"position_ids": position_ids} if position_ids is not None else {}),
             },
             batch_size=generated_batch_size,
         )

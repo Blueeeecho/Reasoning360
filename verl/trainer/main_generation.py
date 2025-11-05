@@ -32,6 +32,7 @@ from pprint import pprint
 
 import pandas as pd
 from omegaconf import OmegaConf
+from hydra.utils import get_original_cwd
 
 from verl import DataProto
 from verl.protocol import pad_dataproto_to_divisor, unpad_dataproto
@@ -110,8 +111,19 @@ def run_generation(config) -> None:
         run_generation_local(config)
         return
     if not ray.is_initialized():
+        # Ensure Ray workers can import local 'verl' by propagating PYTHONPATH and working_dir
+        repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        current_pythonpath = os.environ.get("PYTHONPATH", "")
+        merged_pythonpath = f"{repo_root}:{current_pythonpath}" if current_pythonpath else repo_root
         ray.init(
-            runtime_env={"env_vars": {"TOKENIZERS_PARALLELISM": "true", "NCCL_DEBUG": "WARN"}},
+            runtime_env={
+                "env_vars": {
+                    "TOKENIZERS_PARALLELISM": "true",
+                    "NCCL_DEBUG": "WARN",
+                    "PYTHONPATH": merged_pythonpath,
+                },
+                "working_dir": repo_root,
+            },
             num_cpus=config.ray_init.num_cpus,
         )
     ray.get(main_task.remote(config))
@@ -121,6 +133,15 @@ def run_generation(config) -> None:
 def main_task(config):
     pprint(OmegaConf.to_container(config, resolve=True))  # resolve=True will eval symbol values
     OmegaConf.resolve(config)
+
+    def _resolve_path(p: str) -> str:
+        if os.path.isabs(p):
+            return p
+        try:
+            base_dir = get_original_cwd()
+        except Exception:
+            base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        return os.path.abspath(os.path.join(base_dir, p))
 
     local_path = copy_to_local(config.model.path)
     trust_remote_code = config.data.get("trust_remote_code", False)
@@ -154,16 +175,17 @@ def main_task(config):
 
     # read dataset. Note that the dataset should directly contain chat template format (e.g., a list of dictionary)
     is_polars_df = False
-    if "livecodebench" in config.data.path:
+    data_path = _resolve_path(config.data.path)
+    if "livecodebench" in data_path:
         import polars as pl
 
-        dataset = pl.read_parquet(config.data.path)
+        dataset = pl.read_parquet(data_path)
         chat_lst = list(dataset[config.data.prompt_key])
         chat_lst = [list(chat) for chat in chat_lst]
         ground_truth_lst = list(dataset["reward_model"])
         is_polars_df = True
     else:
-        dataset = pd.read_parquet(config.data.path)
+        dataset = pd.read_parquet(data_path)
         chat_lst = dataset[config.data.prompt_key].tolist()
         chat_lst = [chat.tolist() for chat in chat_lst]
         ground_truth_lst = dataset["reward_model"].tolist()
@@ -217,8 +239,8 @@ def main_task(config):
         )
         input_ids = inputs["input_ids"]
         attention_mask = inputs["attention_mask"]
-        position_ids = compute_position_id_with_mask(attention_mask)
-        batch_dict = {"input_ids": input_ids, "attention_mask": attention_mask, "position_ids": position_ids}
+        # Avoid custom position_ids for HF generation to prevent model-specific incompatibilities
+        batch_dict = {"input_ids": input_ids, "attention_mask": attention_mask}
 
         data = DataProto.from_dict(batch_dict)
         # NOTE: modified by Reasoning360. Sample n times altogether.
@@ -229,23 +251,34 @@ def main_task(config):
         output_padded = wg.generate_sequences(data_padded)
         # remove dummy data
         output = unpad_dataproto(output_padded, pad_size=pad_size)
-        output_texts = []
+        # Decode using the rollout-provided 'responses' tensor to avoid incorrect slicing
+        import torch
+        resp_ids = []
         for i in range(len(output)):
             data_item = output[i]
-            prompt_length = data_item.batch["prompts"].shape[-1]
-            # TODO: batch this operation.
-            valid_response_length = data_item.batch["attention_mask"][prompt_length:].sum()
-            valid_response_ids = data_item.batch["responses"][:valid_response_length]
-            response_str = tokenizer.decode(valid_response_ids, skip_special_tokens=True)
-            output_texts.append(response_str)
+            resp = data_item.batch.get("responses", None)
+            if resp is None:
+                # Fallback to slicing if responses are unavailable (should not happen for HF rollout)
+                prompt_len = data_item.batch["prompts"].shape[-1]
+                seq = data_item.batch["input_ids"]
+                if hasattr(seq, "dim") and seq.dim() == 2:
+                    seq = seq.squeeze(0)
+                resp = seq[prompt_len:]
+            # ensure single-sample 1D tensor
+            if hasattr(resp, "dim") and resp.dim() == 2:
+                resp = resp.squeeze(0)
+            resp_ids.append(resp)
 
-        # remove the padding
-        pad_token = tokenizer.pad_token
-        output_text_unpad = []
-        for text in output_texts:
-            output_text_unpad.append(text.replace(pad_token, ""))
-
-        output_lst.extend(output_text_unpad)
+        if len(resp_ids) > 0:
+            try:
+                resp_stacked = torch.stack(resp_ids, dim=0)
+                batch_texts = tokenizer.batch_decode(resp_stacked.tolist(), skip_special_tokens=True)
+            except Exception:
+                batch_texts = [tokenizer.decode(ids.tolist(), skip_special_tokens=True) for ids in resp_ids]
+            # Remove pad token occurrences for consistency with local generation
+            pad_token = tokenizer.pad_token or ""
+            output_text_unpad = [text.replace(pad_token, "") for text in batch_texts]
+            output_lst.extend(output_text_unpad)
 
     # convert output_lst from (n_samples * n_data ,) to (n_data, n_sampels)
     original_data_size = len(dataset)
@@ -256,7 +289,8 @@ def main_task(config):
     original_ground_truth_lst = ground_truth_lst[:original_data_size]
 
     # Check if 'aime' is in the output path to determine if we should merge responses
-    should_merge_aime = "aime" in config.data.output_path.lower()
+    output_path = _resolve_path(config.data.output_path)
+    should_merge_aime = "aime" in output_path.lower()
     # add to the data frame
     dataset["responses"] = output_lst
 
@@ -266,32 +300,31 @@ def main_task(config):
         merged_dataset = merge_aime_responses(dataset, output_lst, config.data.prompt_key, "responses")
 
         # Save merged dataset
-        output_dir = os.path.dirname(config.data.output_path)
+        output_dir = os.path.dirname(output_path)
         makedirs(output_dir, exist_ok=True)
 
         if hasattr(merged_dataset, "write_parquet"):  # polars DataFrame
-            merged_dataset.write_parquet(config.data.output_path)
+            merged_dataset.write_parquet(output_path)
         else:  # pandas DataFrame
-            merged_dataset.to_parquet(config.data.output_path)
+            merged_dataset.to_parquet(output_path)
 
-        print(f"Saved merged AIME responses to {config.data.output_path}")
+        print(f"Saved merged AIME responses to {output_path}")
     else:
         # NOTE: added by Reasoning360. dump results
         if is_polars_df:
             import polars as pl
-
             dataset = dataset.with_columns(pl.Series("responses", output_lst))
             # write to a new parquet
-            output_dir = os.path.dirname(config.data.output_path)
+            output_dir = os.path.dirname(output_path)
             makedirs(output_dir, exist_ok=True)
-            dataset.write_parquet(config.data.output_path)
+            dataset.write_parquet(output_path)
         else:
             # For pandas, use standard bracket assignment
             dataset["responses"] = output_lst
             # write to a new parquet
-            output_dir = os.path.dirname(config.data.output_path)
+            output_dir = os.path.dirname(output_path)
             makedirs(output_dir, exist_ok=True)
-            dataset.to_parquet(config.data.output_path)
+            dataset.to_parquet(output_path)
 
         # NOTE: added by Reasoning360. dump results
         result_list = [
@@ -303,7 +336,7 @@ def main_task(config):
             for chat, output, ground_truth in zip(original_chat_lst, output_lst, original_ground_truth_lst)
         ]
         model_name = config.model.path.split("/")[-1]
-        with open(config.data.output_path.replace(".parquet", f"_{model_name}.json"), "w", encoding="utf-8") as f:
+        with open(output_path.replace(".parquet", f"_{model_name}.json"), "w", encoding="utf-8") as f:
             json.dump(result_list, f, indent=2, ensure_ascii=False)
 
 
@@ -327,15 +360,25 @@ def run_generation_local(config) -> None:
 
     # read dataset
     is_polars_df = False
-    if "livecodebench" in config.data.path:
+    def _resolve_path(p: str) -> str:
+        if os.path.isabs(p):
+            return p
+        try:
+            base_dir = get_original_cwd()
+        except Exception:
+            base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        return os.path.abspath(os.path.join(base_dir, p))
+
+    data_path = _resolve_path(config.data.path)
+    if "livecodebench" in data_path:
         import polars as pl
-        dataset = pl.read_parquet(config.data.path)
+        dataset = pl.read_parquet(data_path)
         chat_lst = list(dataset[config.data.prompt_key])
         chat_lst = [list(chat) for chat in chat_lst]
         ground_truth_lst = list(dataset["reward_model"])
         is_polars_df = True
     else:
-        dataset = pd.read_parquet(config.data.path)
+        dataset = pd.read_parquet(data_path)
         chat_lst = dataset[config.data.prompt_key].tolist()
         chat_lst = [chat.tolist() for chat in chat_lst]
         ground_truth_lst = dataset["reward_model"].tolist()
@@ -414,31 +457,32 @@ def run_generation_local(config) -> None:
     original_chat_lst = chat_lst[:original_data_size]
     original_ground_truth_lst = ground_truth_lst[:original_data_size]
 
-    should_merge_aime = "aime" in config.data.output_path.lower()
+    output_path = _resolve_path(config.data.output_path)
+    should_merge_aime = "aime" in output_path.lower()
     dataset["responses"] = output_lst
 
     if should_merge_aime:
         print("Detected 'aime' in output path, merging responses by prompt content...")
         merged_dataset = merge_aime_responses(dataset, output_lst, config.data.prompt_key, "responses")
-        output_dir = os.path.dirname(config.data.output_path)
+        output_dir = os.path.dirname(output_path)
         makedirs(output_dir, exist_ok=True)
         if hasattr(merged_dataset, "write_parquet"):
-            merged_dataset.write_parquet(config.data.output_path)
+            merged_dataset.write_parquet(output_path)
         else:
-            merged_dataset.to_parquet(config.data.output_path)
-        print(f"Saved merged AIME responses to {config.data.output_path}")
+            merged_dataset.to_parquet(output_path)
+        print(f"Saved merged AIME responses to {output_path}")
     else:
         if is_polars_df:
             import polars as pl
             dataset = dataset.with_columns(pl.Series("responses", output_lst))
-            output_dir = os.path.dirname(config.data.output_path)
+            output_dir = os.path.dirname(output_path)
             makedirs(output_dir, exist_ok=True)
-            dataset.write_parquet(config.data.output_path)
+            dataset.write_parquet(output_path)
         else:
             dataset["responses"] = output_lst
-            output_dir = os.path.dirname(config.data.output_path)
+            output_dir = os.path.dirname(output_path)
             makedirs(output_dir, exist_ok=True)
-            dataset.to_parquet(config.data.output_path)
+            dataset.to_parquet(output_path)
 
         result_list = [
             {
@@ -449,7 +493,7 @@ def run_generation_local(config) -> None:
             for chat, output, ground_truth in zip(original_chat_lst, output_lst, original_ground_truth_lst)
         ]
         model_name = config.model.path.split("/")[-1]
-        with open(config.data.output_path.replace(".parquet", f"_{model_name}.json"), "w", encoding="utf-8") as f:
+        with open(output_path.replace(".parquet", f"_{model_name}.json"), "w", encoding="utf-8") as f:
             json.dump(result_list, f, indent=2, ensure_ascii=False)
 
 

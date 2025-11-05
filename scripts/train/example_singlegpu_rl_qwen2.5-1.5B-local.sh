@@ -4,9 +4,9 @@
 # --- Execution Environment ---
 NUM_GPUS=1  # 单机单卡训练
 
-# --- Resuming & Logging ---
-RESUME_CKPT_DIR_NAME=""  # 可填入 W&B 实验名以便断点续训，否则留空
-WANDB_PROJECT="Reasoning360" # 你的 wandb 项目名
+# # --- Resuming & Logging ---
+# RESUME_CKPT_DIR_NAME=""  # 可填入 W&B 实验名以便断点续训，否则留空
+# WANDB_PROJECT="Reasoning360" # 你的 wandb 项目名
 
 # --- External Services ---
 export STEM_LLM_JUDGE_URL="<STEM_LLM_JUDGE_URL>"  # 可选：填写 llm-as-judge 的 URL 以启用 STEM 域评估
@@ -87,13 +87,20 @@ else
     WANDB_EXPERIMENT_NAME="single-gpu-${TIMESTAMP}-${BASE_MODEL##*/}"
 fi
 
-# =================== Local Mode ===================
-echo "Single-GPU local training; skipping Ray start/stop."
+# =================== Ray Start (Single Node) ===================
+# 单机单卡也保留 Ray 启停，以尽量保持原流程不变
+${CONDA_BIN_PATH}ray stop -f
+
+echo "Starting Ray on the local node with ${NUM_GPUS} GPU..."
+${CONDA_BIN_PATH}ray start --head --num-gpus ${NUM_GPUS} --include-dashboard=True --dashboard-port 8265
+sleep 5
+
 
 # =================== RL Config ===================
+# Note, we borrowed the config format from DAPO while here disabled all DAPO features to run the naive RL baseline.
 # 继承原配置，调整为单卡+HF 本地 rollout
 
-adv_estimator=grpo
+adv_estimator=grpo  # 使用 GRPO
 
 use_kl_in_reward=False
 kl_coef=0.0
@@ -137,88 +144,91 @@ offload=True
 
 # =================== Start RL training ===================
 echo "Starting single-GPU training with HF local rollout..."
-python -m recipe.dapo.main_dapo \
-    --config-path=config \
-    --config-name="dapo_fsdp_config.yaml" \
-    algorithm.adv_estimator=${adv_estimator} \
-    algorithm.use_kl_in_reward=${use_kl_in_reward} \
-    algorithm.kl_ctrl.kl_coef=${kl_coef} \
-    algorithm.filter_groups.enable=${enable_filter_groups} \
-    algorithm.filter_groups.metric=${filter_groups_metric} \
-    algorithm.filter_groups.max_num_gen_batches=${max_num_gen_batches} \
-    data.train_files="$train_files" \
-    data.val_files="$test_files" \
-    data.prompt_key=prompt \
-    data.truncation='right' \
-    data.max_prompt_length=${max_prompt_length} \
-    data.max_response_length=${max_response_length} \
-    data.train_batch_size=${train_prompt_bsz} \
-    data.gen_batch_size=${gen_prompt_bsz} \
-    actor_rollout_ref.actor.use_kl_loss=${use_kl_loss} \
-    actor_rollout_ref.actor.kl_loss_coef=${kl_loss_coef} \
-    actor_rollout_ref.actor.clip_ratio_low=${clip_ratio_low} \
-    actor_rollout_ref.actor.clip_ratio_high=${clip_ratio_high} \
-    actor_rollout_ref.actor.clip_ratio_c=10.0 \
-    actor_rollout_ref.actor.use_dynamic_bsz=${use_dynamic_bsz} \
-    actor_rollout_ref.actor.ppo_max_token_len_per_gpu=${actor_ppo_max_token_len} \
-    actor_rollout_ref.actor.strategy="fsdp" \
-    actor_rollout_ref.actor.optim.lr=1e-6 \
-    actor_rollout_ref.actor.optim.lr_warmup_steps=10 \
-    actor_rollout_ref.actor.optim.weight_decay=0.1 \
-    actor_rollout_ref.actor.optim.warmup_style=constant \
-    actor_rollout_ref.actor.optim.min_lr_ratio=0. \
-    actor_rollout_ref.actor.ppo_mini_batch_size=${train_prompt_mini_bsz} \
-    actor_rollout_ref.actor.ppo_micro_batch_size=${train_micro_batch_size} \
-    actor_rollout_ref.actor.fsdp_config.param_offload=${offload} \
-    actor_rollout_ref.actor.fsdp_config.optimizer_offload=${offload} \
-    actor_rollout_ref.actor.entropy_coeff=0 \
-    actor_rollout_ref.actor.grad_clip=1.0 \
-    actor_rollout_ref.actor.loss_agg_mode=${loss_agg_mode} \
-    actor_rollout_ref.actor.ulysses_sequence_parallel_size=${sp_size} \
-    actor_rollout_ref.actor.fsdp_config.fsdp_size=-1 \
-    actor_rollout_ref.ref.log_prob_use_dynamic_bsz=${use_dynamic_bsz} \
-    actor_rollout_ref.ref.log_prob_max_token_len_per_gpu=${infer_ppo_max_token_len} \
-    actor_rollout_ref.ref.log_prob_micro_batch_size=${infer_micro_batch_size} \
-    actor_rollout_ref.ref.fsdp_config.param_offload=${offload} \
-    actor_rollout_ref.ref.ulysses_sequence_parallel_size=${sp_size} \
-    actor_rollout_ref.rollout.name=hf \
-    actor_rollout_ref.rollout.n=${n_resp_per_prompt} \
-    actor_rollout_ref.rollout.log_prob_use_dynamic_bsz=${use_dynamic_bsz} \
-    actor_rollout_ref.rollout.log_prob_max_token_len_per_gpu=${infer_ppo_max_token_len} \
-    actor_rollout_ref.rollout.gpu_memory_utilization=0.7 \
-    actor_rollout_ref.rollout.log_prob_micro_batch_size=${infer_micro_batch_size} \
-    actor_rollout_ref.rollout.tensor_model_parallel_size=${gen_tp} \
-    actor_rollout_ref.rollout.enable_chunked_prefill=True \
-    actor_rollout_ref.rollout.max_num_batched_tokens=${infer_ppo_max_token_len} \
-    actor_rollout_ref.rollout.max_num_seqs=${gen_max_num_seqs} \
-    actor_rollout_ref.rollout.temperature=${temperature} \
-    actor_rollout_ref.rollout.top_p=${top_p} \
-    actor_rollout_ref.rollout.top_k=${top_k} \
-    actor_rollout_ref.rollout.val_kwargs.top_k=${top_k} \
-    actor_rollout_ref.rollout.val_kwargs.top_p=${top_p} \
-    actor_rollout_ref.rollout.val_kwargs.temperature=${temperature} \
-    actor_rollout_ref.rollout.val_kwargs.n=1 \
-    actor_rollout_ref.rollout.val_kwargs.do_sample=True \
-    actor_rollout_ref.model.path=$BASE_MODEL \
-    actor_rollout_ref.model.use_remove_padding=True \
-    actor_rollout_ref.rollout.multi_turn.enable=False \
-    actor_rollout_ref.rollout.mode="sync" \
-    +actor_rollout_ref.model.override_config.attention_dropout=0. \
-    +actor_rollout_ref.model.override_config.embd_pdrop=0. \
-    +actor_rollout_ref.model.override_config.resid_pdrop=0. \
-    actor_rollout_ref.model.enable_gradient_checkpointing=True \
-    reward_model.reward_manager=async_multi_process \
-    reward_model.overlong_buffer.enable=${enable_overlong_buffer} \
-    reward_model.overlong_buffer.len=${overlong_buffer_len} \
-    reward_model.overlong_buffer.penalty_factor=${overlong_penalty_factor} \
-    trainer.logger=['console','wandb'] \
-    trainer.project_name=${WANDB_PROJECT} \
-    trainer.experiment_name=${WANDB_EXPERIMENT_NAME} \
-    trainer.val_before_train=True \
-    trainer.n_gpus_per_node=${NUM_GPUS} \
-    trainer.nnodes=1 \
-    trainer.save_freq=10 \
-    trainer.test_freq=10 \
-    trainer.total_epochs=10 \
-    trainer.log_val_generations=50 \
-    trainer.resume_mode=auto
+args=(
+    --config-path=config # Hydra 配置目录（相对路径）
+    --config-name="dapo_fsdp_config.yaml" # 选择具体的配置文件（FSDP 基线）
+    algorithm.adv_estimator=${adv_estimator} # 优势估计器类型（如 GRPO）
+    algorithm.use_kl_in_reward=${use_kl_in_reward} # 是否在奖励中加入 KL 正则项
+    algorithm.kl_ctrl.kl_coef=${kl_coef} # KL 系数（奖励中的惩罚权重）
+    algorithm.filter_groups.enable=${enable_filter_groups} # 是否启用基于指标的样本分组过滤
+    # algorithm.filter_groups.metric=${filter_groups_metric} # 单卡且禁用过滤时不必要，使用默认
+    # algorithm.filter_groups.max_num_gen_batches=${max_num_gen_batches} # 单卡且禁用过滤时不必要
+    data.train_files="$train_files" # 训练数据文件列表
+    data.val_files="$test_files" # 验证/测试数据文件列表
+    data.prompt_key=prompt # 数据集中提示字段的键名
+    data.truncation='right' # 输入超长时的截断方向（右侧）
+    data.max_prompt_length=${max_prompt_length} # 提示最大 token 数
+    data.max_response_length=${max_response_length} # 生成最大 token 数
+    data.train_batch_size=${train_prompt_bsz} # 训练阶段的 batch size（每步提示条数）
+    data.gen_batch_size=${gen_prompt_bsz} # rollout 阶段的生成 batch size
+    actor_rollout_ref.actor.use_kl_loss=${use_kl_loss} # 是否在 actor 损失中显式加入 KL loss
+    actor_rollout_ref.actor.kl_loss_coef=${kl_loss_coef} # KL loss 系数
+    actor_rollout_ref.actor.clip_ratio_low=${clip_ratio_low} # PPO clip 下界
+    actor_rollout_ref.actor.clip_ratio_high=${clip_ratio_high} # PPO clip 上界
+    actor_rollout_ref.actor.clip_ratio_c=10.0 # PPO clip 常数（额外约束幅度）
+    actor_rollout_ref.actor.use_dynamic_bsz=${use_dynamic_bsz} # 启用动态 batch size 以贴合显存
+    actor_rollout_ref.actor.ppo_max_token_len_per_gpu=${actor_ppo_max_token_len} # 每 GPU 的 PPO 计算最大 token 长度
+    actor_rollout_ref.actor.strategy="fsdp" # 训练策略（FSDP）
+    actor_rollout_ref.actor.optim.lr=1e-6 # 学习率
+    actor_rollout_ref.actor.optim.lr_warmup_steps=10 # 学习率预热步数
+    actor_rollout_ref.actor.optim.weight_decay=0.1 # 权重衰减
+    actor_rollout_ref.actor.optim.warmup_style=constant # 预热策略（常数）
+    actor_rollout_ref.actor.optim.min_lr_ratio=0. # 最小学习率比例（相对 base lr）
+    actor_rollout_ref.actor.ppo_mini_batch_size=${train_prompt_mini_bsz} # PPO 的 mini-batch 提示条数
+    actor_rollout_ref.actor.ppo_micro_batch_size=${train_micro_batch_size} # 微批大小（null 表示由框架自适应）
+    # actor_rollout_ref.actor.fsdp_config.param_offload=${offload} # 单卡通常不需要参数 offload
+    # actor_rollout_ref.actor.fsdp_config.optimizer_offload=${offload} # 单卡通常不需要优化器状态 offload
+    actor_rollout_ref.actor.entropy_coeff=0 # 策略熵正则系数
+    actor_rollout_ref.actor.grad_clip=1.0 # 梯度裁剪阈值（范数）
+    actor_rollout_ref.actor.loss_agg_mode=${loss_agg_mode} # 损失聚合方式（如 token-mean）
+    actor_rollout_ref.actor.ulysses_sequence_parallel_size=${sp_size} # Ulysses 序列并行规模
+    # actor_rollout_ref.actor.fsdp_config.fsdp_size=-1 # 单卡无需设置进程组大小，使用默认
+    actor_rollout_ref.ref.log_prob_use_dynamic_bsz=${use_dynamic_bsz} # 计算 logprob 时是否使用动态 batch size
+    actor_rollout_ref.ref.log_prob_max_token_len_per_gpu=${infer_ppo_max_token_len} # 每 GPU 计算 logprob 的最大 token 长度
+    # actor_rollout_ref.ref.log_prob_micro_batch_size=${infer_micro_batch_size} # 单卡下可省略，使用自适应
+    # actor_rollout_ref.ref.fsdp_config.param_offload=${offload} # 单卡通常不需要参考模型 offload
+    actor_rollout_ref.ref.ulysses_sequence_parallel_size=${sp_size} # 参考模型的序列并行规模
+    actor_rollout_ref.rollout.name=hf # rollout 后端：HF（transformers）
+    actor_rollout_ref.rollout.n=${n_resp_per_prompt} # 每个提示生成的响应数量
+    actor_rollout_ref.rollout.log_prob_use_dynamic_bsz=${use_dynamic_bsz} # rollout 阶段计算 logprob 的动态 batch size
+    actor_rollout_ref.rollout.log_prob_max_token_len_per_gpu=${infer_ppo_max_token_len} # rollout/logprob 阶段每 GPU 最大 token 长度
+    actor_rollout_ref.rollout.gpu_memory_utilization=0.7 # 目标显存利用率（用于动态调度）
+    # actor_rollout_ref.rollout.log_prob_micro_batch_size=${infer_micro_batch_size} # 单卡下可省略，使用自适应
+    # actor_rollout_ref.rollout.tensor_model_parallel_size=${gen_tp} # 单卡不需要张量并行，默认 1
+    # actor_rollout_ref.rollout.enable_chunked_prefill=True # 简化配置，单卡可按需打开，默认关闭
+    # actor_rollout_ref.rollout.max_num_batched_tokens=${infer_ppo_max_token_len} # 单卡保守长度与 batch 已足够，可省略
+    # actor_rollout_ref.rollout.max_num_seqs=${gen_max_num_seqs} # 单卡可使用默认并发上限
+    actor_rollout_ref.rollout.temperature=${temperature} # 采样温度
+    actor_rollout_ref.rollout.top_p=${top_p} # nucleus 采样阈值
+    actor_rollout_ref.rollout.top_k=${top_k} # top-k 采样阈值（HF 用 0）
+    actor_rollout_ref.rollout.val_kwargs.top_k=${top_k} # 验证时的 top-k
+    actor_rollout_ref.rollout.val_kwargs.top_p=${top_p} # 验证时的 top-p
+    actor_rollout_ref.rollout.val_kwargs.temperature=${temperature} # 验证时的温度
+    actor_rollout_ref.rollout.val_kwargs.n=1 # 验证每个提示生成 1 个响应
+    actor_rollout_ref.rollout.val_kwargs.do_sample=True # 验证阶段启用采样
+    actor_rollout_ref.model.path=$BASE_MODEL # 基础模型权重路径
+    actor_rollout_ref.model.use_remove_padding=True # 移除填充以提升计算效率
+    actor_rollout_ref.rollout.multi_turn.enable=False # 关闭多轮对话生成
+    actor_rollout_ref.rollout.mode="sync" # 同步模式 rollout
+    +actor_rollout_ref.model.override_config.attention_dropout=0. # 覆盖注意力 dropout 为 0
+    +actor_rollout_ref.model.override_config.embd_pdrop=0. # 覆盖 embedding dropout 为 0
+    +actor_rollout_ref.model.override_config.resid_pdrop=0. # 覆盖 residual dropout 为 0
+    actor_rollout_ref.model.enable_gradient_checkpointing=True # 启用梯度检查点以省显存
+    reward_model.reward_manager=async_multi_process # 奖励模型管理器：多进程异步
+    reward_model.overlong_buffer.enable=${enable_overlong_buffer} # 是否启用过长输出的惩罚缓冲机制
+    reward_model.overlong_buffer.len=${overlong_buffer_len} # 过长缓冲的长度阈值
+    reward_model.overlong_buffer.penalty_factor=${overlong_penalty_factor} # 过长输出的惩罚系数
+    trainer.logger=['console','wandb'] # 日志后端（控制台与 W&B）
+    trainer.project_name=${WANDB_PROJECT} # W&B 项目名
+    trainer.experiment_name=${WANDB_EXPERIMENT_NAME} # 实验名（用于区分 run）
+    trainer.val_before_train=True # 训练前先跑一次验证
+    trainer.n_gpus_per_node=${NUM_GPUS} # 每节点 GPU 数
+    # trainer.nnodes=1 # 单卡默认 1，可省略
+    trainer.save_freq=10 # 模型保存频率（epoch 间隔）
+    trainer.test_freq=10 # 验证/测试频率（epoch 间隔）
+    trainer.total_epochs=10 # 总训练轮数
+    trainer.log_val_generations=50 # 验证阶段记录的生成条数
+    trainer.resume_mode=auto # 断点恢复模式（自动）
+)
+
+python -m recipe.dapo.main_dapo "${args[@]}"

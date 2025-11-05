@@ -250,9 +250,16 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
             torch_dtype = PrecisionType.to_dtype(torch_dtype)
 
         # override model kwargs
-        actor_model_config = AutoConfig.from_pretrained(
-            local_path, trust_remote_code=trust_remote_code, attn_implementation="flash_attention_2"
-        )
+        # Respect configured attention implementation (e.g., eager) to avoid hard dependency on flash-attn
+        configured_attn_impl = self.config.model.get("attn_implementation", None)
+        if configured_attn_impl is not None:
+            actor_model_config = AutoConfig.from_pretrained(
+                local_path, trust_remote_code=trust_remote_code, attn_implementation=configured_attn_impl
+            )
+        else:
+            actor_model_config = AutoConfig.from_pretrained(
+                local_path, trust_remote_code=trust_remote_code
+            )
 
         # patch for kimi-vl
         if getattr(actor_model_config, "model_type", None) == "kimi_vl":
@@ -1023,9 +1030,10 @@ class CriticWorker(Worker, DistProfilerExtension):
 
         from transformers import AutoConfig
 
+        critic_attn_impl = self.config.model.get("attn_implementation", None)
         critic_model_config = AutoConfig.from_pretrained(
             local_path,
-            attn_implementation="flash_attention_2",
+            attn_implementation=critic_attn_impl if critic_attn_impl is not None else None,
             trust_remote_code=config.model.get("trust_remote_code", False),
         )
         critic_model_config.num_labels = 1
@@ -1383,11 +1391,13 @@ class RewardModelWorker(Worker, DistProfilerExtension):
         with init_context(), warnings.catch_warnings():
             warnings.simplefilter("ignore")
             model_config.classifier_dropout = 0.0
+            # Respect configured attention implementation (e.g., eager) when building reward model
+            reward_attn_impl = self.config.model.get("attn_implementation", None)
             reward_module = AutoModelForTokenClassification.from_pretrained(
                 pretrained_model_name_or_path=local_path,
                 config=model_config,
                 torch_dtype=torch.bfloat16,
-                attn_implementation="flash_attention_2",
+                attn_implementation=reward_attn_impl if reward_attn_impl is not None else None,
                 trust_remote_code=trust_remote_code,
             )
 
